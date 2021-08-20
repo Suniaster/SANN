@@ -12,6 +12,10 @@ keywords = ["nn", "neural-network", "perceptron"]
 categories = ["accessibility"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+name = "sann_lib"
+path = "src/lib/mod.rs"
+
 [dependencies]
 vectors = "0.3.0"
 ndarray = "0.15.0"
