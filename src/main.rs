@@ -11,14 +11,18 @@ fn main() {
     let nn = lib::neural_net::NeuralNet::from_format(&[3, 2, 1]);
     println!("{:?}", nn.foward(&input1));
 
-    let nn2 = lib::neural_net::NeuralNet::create(
-        vec![
-            lib::layer::Layer::new_dense(3, 2),
-            lib::layer::Layer::ReLu,
-            lib::layer::Layer::new_dense(2, 1),
-            lib::layer::Layer::Sigmoid,
-        ]
-    );
+    let nn2 = lib::neural_net::NeuralNet::from_format(&[3, 1]);
 
+
+    // let loss = lib::layer::dense::calculate_error(
+    //     &[0.0, 0.0], 
+    //     &[1.0, 30.0]
+    // );
+    // println!("Loss iss {}", loss);
     println!("{:?}", nn2.foward(&input1));
+
+    println!("###########");
+    // println!("{:?}", nn2.train(&input1, &array![1.0]));
+    // let mut perceptron = lib::perceptron::Perceptron::from_rand(2);
+    // println!("{:?}", nn2.train(&perceptron, &array![1.0]));
 }

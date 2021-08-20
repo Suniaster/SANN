@@ -1,3 +1,5 @@
+#[allow(dead_code)]
+
 use super::layer;
 use super::perceptron::Forward;
 use ndarray::Array1;
@@ -15,15 +17,15 @@ impl NeuralNet {
                 input_shape = format[0];
                 continue;
             }
-            layers.push(layer::Layer::new_dense(input_shape as usize, format[i] as usize));
+            layers.push(layer::Layer::from_rand(input_shape as usize, format[i] as usize));
             input_shape = format[i];
         }
         return NeuralNet { layers };
     }
 
-    pub fn create(layers: Vec<layer::Layer>) -> NeuralNet{
-        return NeuralNet { layers };
-    }
+    // pub fn create(layers: Vec<layer::Layer>) -> NeuralNet{
+    //     return NeuralNet { layers };
+    // }
 
     pub fn foward(&self, input: &Array1<f64>) -> Array1<f64> {
         let mut iterator = self.layers.iter();
