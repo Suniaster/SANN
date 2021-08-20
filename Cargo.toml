@@ -8,7 +8,7 @@ description = "Simple Neural Network"
 readme = "README.md"
 homepage = "https://github.com/Suniaster/SANN"
 repository = "https://github.com/Suniaster/SANN"
-keywords = ["nn", "neural network", "perceptron"]
+keywords = ["nn", "neural-network", "perceptron"]
 categories = ["neural-network"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
