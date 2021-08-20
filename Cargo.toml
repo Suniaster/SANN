@@ -14,5 +14,5 @@ categories = ["neural-network"]
 
 [dependencies]
 vectors = "0.3.0"
-ndarray = { version = "0.15.0", features = ["blas"] }
+ndarray = "0.15.0"
 rand = "0.8.0"
