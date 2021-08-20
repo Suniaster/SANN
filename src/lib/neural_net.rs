@@ -1,5 +1,4 @@
 #[allow(dead_code)]
-
 use super::layer;
 use ndarray::Array1;
 
@@ -16,7 +15,10 @@ impl NeuralNet {
                 input_shape = format[0];
                 continue;
             }
-            layers.push(layer::Layer::from_rand(input_shape as usize, format[i] as usize));
+            layers.push(layer::Layer::from_rand(
+                input_shape as usize,
+                format[i] as usize,
+            ));
             input_shape = format[i];
         }
         return NeuralNet { layers };

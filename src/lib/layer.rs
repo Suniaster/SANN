@@ -4,28 +4,28 @@ use ndarray::Array1;
 use ndarray::Array2;
 use std::vec::Vec;
 
-use super::perceptron::Perceptron;
 use super::activations::*;
-
+use super::perceptron::Perceptron;
 
 pub struct Layer {
     pub weights_matrix: Array2<f64>,
     biases: Array1<f64>,
     activation: Activation,
-    last_output: Array1<f64>
+    last_output: Array1<f64>,
 }
 
 impl Layer {
-
     pub fn calculate_error(output: &Array1<f64>, expected: &Array1<f64>) -> f64 {
         return output
             .iter()
             .zip(expected.iter())
-            .fold(0.0, |sum: f64, (x, y)| -> f64 { return sum + (x - y).powi(2) });
+            .fold(0.0, |sum: f64, (x, y)| -> f64 {
+                return sum + (x - y).powi(2);
+            });
     }
 
-    pub fn create_empty(input_shape:usize) -> Layer {
-        return  Layer {
+    pub fn create_empty(input_shape: usize) -> Layer {
+        return Layer {
             biases: array![],
             last_output: array![],
             weights_matrix: Array2::from_shape_vec((0, input_shape), vec![]).unwrap(),
@@ -58,10 +58,15 @@ impl Layer {
 
     pub fn forward(&mut self, input: &Array1<f64>) -> &Array1<f64> {
         self.last_output = self.activate(input);
-        return &self.last_output ;
+        return &self.last_output;
     }
 
-    pub fn learn(&mut self, last_output: &Array1<f64>, expected: &Array1<f64>, learning_rate: f64) -> f64{
+    pub fn learn(
+        &mut self,
+        last_output: &Array1<f64>,
+        expected: &Array1<f64>,
+        learning_rate: f64,
+    ) -> f64 {
         let loss = Layer::calculate_error(last_output, expected);
         println!("Layer Loss: {}", loss);
         println!("Layer Loss: {}", learning_rate);

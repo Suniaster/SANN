@@ -12,7 +12,6 @@ pub struct Perceptron {
     pub shape: usize,
 }
 
-
 impl Perceptron {
     pub fn from_rand(input_shape: usize) -> Perceptron {
         let mut weights: Vec<f64> = Vec::new();

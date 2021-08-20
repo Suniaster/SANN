@@ -13,9 +13,8 @@ fn main() {
 
     let nn2 = lib::neural_net::NeuralNet::from_format(&[3, 1]);
 
-
     // let loss = lib::layer::dense::calculate_error(
-    //     &[0.0, 0.0], 
+    //     &[0.0, 0.0],
     //     &[1.0, 30.0]
     // );
     // println!("Loss iss {}", loss);
