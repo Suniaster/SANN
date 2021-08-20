@@ -1,27 +1,27 @@
-use super::layer::*;
-use super::perceptron::*;
+use super::layer;
+use super::perceptron::Forward;
 use ndarray::Array1;
 
 pub struct NeuralNet {
-    layers: Vec<Layer>,
+    layers: Vec<layer::Layer>,
 }
 
 impl NeuralNet {
     pub fn from_format(format: &[i32]) -> NeuralNet {
-        let mut layers: Vec<Layer> = Vec::new();
+        let mut layers: Vec<layer::Layer> = Vec::new();
         let mut input_shape: i32 = 1;
         for i in 0..format.len() {
             if i == 0 {
                 input_shape = format[0];
                 continue;
             }
-            layers.push(Layer::new_dense(input_shape as usize, format[i] as usize));
+            layers.push(layer::Layer::new_dense(input_shape as usize, format[i] as usize));
             input_shape = format[i];
         }
         return NeuralNet { layers };
     }
 
-    pub fn create(layers: Vec<Layer>) -> NeuralNet{
+    pub fn create(layers: Vec<layer::Layer>) -> NeuralNet{
         return NeuralNet { layers };
     }
 

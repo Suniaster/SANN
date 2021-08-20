@@ -4,14 +4,15 @@ use ndarray::Array1;
 use ndarray::Array2;
 use std::vec::Vec;
 
-use super::super::perceptron::*;
+use super::super::perceptron::Perceptron;
+use super::super::perceptron;
 
 pub struct LayerDense {
     weights_matrix: Array2<f64>,
     biases: Array1<f64>,
 }
 
-impl Forward for LayerDense {
+impl perceptron::Forward for LayerDense {
     fn foward(&self, input: &Array1<f64>) -> Array1<f64> {
         let result = self.weights_matrix.dot(input);
         return &result + &self.biases;

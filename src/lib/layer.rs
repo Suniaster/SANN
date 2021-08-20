@@ -1,6 +1,6 @@
 use ndarray::Array1;
+use super::perceptron;
 
-use super::perceptron::*;
 pub mod dense;
 pub mod activations;
 pub enum Layer {
@@ -8,7 +8,7 @@ pub enum Layer {
     ReLu,
 }
 
-impl Forward for Layer {
+impl perceptron::Forward for Layer {
     fn foward(&self, input: &Array1<f64>) -> Array1<f64> {
         match self {
             Layer::Dense(layer) => layer.foward(input),
