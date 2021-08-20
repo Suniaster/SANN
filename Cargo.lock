@@ -18,6 +18,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
+name = "axon"
+version = "0.1.0"
+dependencies = [
+ "ndarray",
+ "rand",
+ "vectors",
+]
+
+[[package]]
 name = "bit-set"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -75,15 +84,6 @@ dependencies = [
  "num-integer",
  "num-traits",
  "rawpointer",
-]
-
-[[package]]
-name = "neural"
-version = "0.1.0"
-dependencies = [
- "ndarray",
- "rand",
- "vectors",
 ]
 
 [[package]]
