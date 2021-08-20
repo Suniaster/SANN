@@ -9,7 +9,7 @@ readme = "README.md"
 homepage = "https://github.com/Suniaster/SANN"
 repository = "https://github.com/Suniaster/SANN"
 keywords = ["nn", "neural-network", "perceptron"]
-categories = ["neural-network"]
+categories = ["accessibility"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
