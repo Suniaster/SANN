@@ -12,9 +12,6 @@ pub struct Perceptron {
     pub shape: usize,
 }
 
-pub trait Forward {
-    fn foward(&self, input: &Array1<f64>) -> Array1<f64>;
-}
 
 impl Perceptron {
     pub fn from_rand(input_shape: usize) -> Perceptron {
@@ -29,14 +26,12 @@ impl Perceptron {
         };
     }
 
-    fn print(&self) {
-        println!("{:?}", self);
-    }
-}
-
-impl Forward for Perceptron {
-    fn foward(&self, input: &Array1<f64>) -> Array1<f64> {
+    pub fn foward(&self, input: &Array1<f64>) -> Array1<f64> {
         let propagation = self.input_weigths.dot(input);
         return array![propagation + self.bias];
+    }
+
+    fn print(&self) {
+        println!("{:?}", self);
     }
 }

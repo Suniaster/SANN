@@ -5,25 +5,18 @@ use ndarray::Array2;
 use std::vec::Vec;
 
 use super::perceptron::Perceptron;
-use super::perceptron;
 use super::activations::*;
 
 
 pub struct Layer {
     pub weights_matrix: Array2<f64>,
     biases: Array1<f64>,
-    activation: Activation
-}
-
-impl perceptron::Forward for Layer {
-    fn foward(&self, input: &Array1<f64>) -> Array1<f64> {
-        let result = self.weights_matrix.dot(input);
-        return (&result + &self.biases).map(self.activation.f);
-    }
+    activation: Activation,
+    last_output: Array1<f64>
 }
 
 impl Layer {
-    
+
     pub fn calculate_error(output: &Array1<f64>, expected: &Array1<f64>) -> f64 {
         return output
             .iter()
@@ -34,6 +27,7 @@ impl Layer {
     pub fn create_empty(input_shape:usize) -> Layer {
         return  Layer {
             biases: array![],
+            last_output: array![],
             weights_matrix: Array2::from_shape_vec((0, input_shape), vec![]).unwrap(),
             activation: Activation::create(ActivationType::Default),
         };
@@ -57,6 +51,15 @@ impl Layer {
         return Layer::from_neurons(Array1::from_vec(vec));
     }
 
+    pub fn activate(&self, input: &Array1<f64>) -> Array1<f64> {
+        let result = self.weights_matrix.dot(input);
+        return (&result + &self.biases).map(self.activation.f);
+    }
+
+    pub fn forward(&mut self, input: &Array1<f64>) -> &Array1<f64> {
+        self.last_output = self.activate(input);
+        return &self.last_output ;
+    }
 
     pub fn learn(&mut self, last_output: &Array1<f64>, expected: &Array1<f64>, learning_rate: f64) -> f64{
         let loss = Layer::calculate_error(last_output, expected);

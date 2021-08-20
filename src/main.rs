@@ -9,7 +9,7 @@ fn main() {
     let input1 = array![1.0, 1.0, 1.0];
 
     let nn = lib::neural_net::NeuralNet::from_format(&[3, 2, 1]);
-    println!("{:?}", nn.foward(&input1));
+    println!("{:?}", nn.activate(&input1));
 
     let nn2 = lib::neural_net::NeuralNet::from_format(&[3, 1]);
 
@@ -19,7 +19,7 @@ fn main() {
     //     &[1.0, 30.0]
     // );
     // println!("Loss iss {}", loss);
-    println!("{:?}", nn2.foward(&input1));
+    println!("{:?}", nn2.activate(&input1));
 
     println!("###########");
     // println!("{:?}", nn2.train(&input1, &array![1.0]));

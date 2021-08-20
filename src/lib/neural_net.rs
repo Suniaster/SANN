@@ -1,7 +1,6 @@
 #[allow(dead_code)]
 
 use super::layer;
-use super::perceptron::Forward;
 use ndarray::Array1;
 
 pub struct NeuralNet {
@@ -27,14 +26,14 @@ impl NeuralNet {
     //     return NeuralNet { layers };
     // }
 
-    pub fn foward(&self, input: &Array1<f64>) -> Array1<f64> {
+    pub fn activate(&self, input: &Array1<f64>) -> Array1<f64> {
         let mut iterator = self.layers.iter();
         let input_layer = iterator.next().expect("NN with no input layer");
 
-        let mut layer_input = input_layer.foward(input);
+        let mut layer_input = input_layer.activate(input);
 
         for hidden_layer in iterator {
-            layer_input = hidden_layer.foward(&layer_input);
+            layer_input = hidden_layer.activate(&layer_input);
         }
 
         return layer_input;
