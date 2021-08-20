@@ -2,7 +2,14 @@
 name = "sann"
 version = "0.1.0"
 edition = "2018"
-
+authors = ["Thiago Chaves <thibousbr@gmail.com>"]
+license = "Apache-2.0"
+description = "Simple Neural Network"
+readme = "README.md"
+homepage = "https://github.com/Suniaster/SANN"
+repository = "https://github.com/Suniaster/SANN"
+keywords = ["nn", "neural network", "perceptron"]
+categories = ["neural-network"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
