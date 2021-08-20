@@ -5,6 +5,7 @@ pub mod dense;
 pub mod activations;
 pub enum Layer {
     Dense(dense::LayerDense),
+    Sigmoid,
     ReLu,
 }
 
@@ -12,7 +13,8 @@ impl perceptron::Forward for Layer {
     fn foward(&self, input: &Array1<f64>) -> Array1<f64> {
         match self {
             Layer::Dense(layer) => layer.foward(input),
-            Layer::ReLu => activations::forward_relu(input)
+            Layer::ReLu => activations::forward_relu(input),
+            Layer::Sigmoid => activations::foward_sigmoid(input)
         }
     }
 }

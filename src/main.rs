@@ -16,7 +16,7 @@ fn main() {
             lib::layer::Layer::new_dense(3, 2),
             lib::layer::Layer::ReLu,
             lib::layer::Layer::new_dense(2, 1),
-            lib::layer::Layer::ReLu,
+            lib::layer::Layer::Sigmoid,
         ]
     );
 

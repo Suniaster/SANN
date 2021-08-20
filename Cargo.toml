@@ -13,7 +13,7 @@ categories = ["accessibility"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name = "sann_lib"
+name = "sann"
 path = "src/lib/mod.rs"
 
 [dependencies]
