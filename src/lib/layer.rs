@@ -9,9 +9,10 @@ use super::perceptron::Perceptron;
 
 pub struct Layer {
     pub weights_matrix: Array2<f64>,
-    biases: Array1<f64>,
-    activation: Activation,
-    last_output: Array1<f64>,
+    pub biases: Array1<f64>,
+    pub activation: Activation,
+    pub last_output: Array1<f64>,
+    pub deltas: Array1<f64>,
 }
 
 impl Layer {
@@ -28,6 +29,7 @@ impl Layer {
         return Layer {
             biases: array![],
             last_output: array![],
+            deltas: array![],
             weights_matrix: Array2::from_shape_vec((0, input_shape), vec![]).unwrap(),
             activation: Activation::create(ActivationType::Default),
         };

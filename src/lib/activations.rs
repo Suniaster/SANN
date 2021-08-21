@@ -41,9 +41,9 @@ impl Activation {
                 d: sigmoid_derivate,
             },
             _ => Activation {
-                t: ActivationType::ReLu,
-                f: relu,
-                d: relu_derivate,
+                t: _type,
+                f: sigmoid,
+                d: sigmoid_derivate,
             },
         }
     }
