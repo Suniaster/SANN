@@ -39,7 +39,7 @@ impl Neuron {
       outputs: vec![]
     })
   }
-  
+
   pub fn project(src: &Container<Neuron>, dest: &Container<Neuron>){
     let new_axon = new_container(Axon {
       weight: (rand::random::<f64>() * 2.0) - 1.0,
@@ -50,6 +50,10 @@ impl Neuron {
 
     src.borrow_mut().outputs.push(new_axon.clone());
     dest.borrow_mut().inputs.push(new_axon.clone());
+  }
+
+  pub fn change_activation(&mut self, _type: ActivationType){
+    self.activation = Activation::create(_type);
   }
 
   pub fn activate(&mut self) -> f64{

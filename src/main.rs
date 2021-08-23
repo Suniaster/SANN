@@ -3,6 +3,7 @@ mod lib;
 mod nn2;
 use nn2::node::Neuron;
 use nn2::layer;
+use lib::activations::ActivationType;
 #[test]
 fn test_nd_neural() {
   let input1 = array![1.0, 0.0];
@@ -48,7 +49,11 @@ fn main() {
     l2.borrow_mut().activate();
     println!("{:?}", l2.borrow_mut().get_state());
 
-    let mut net = nn2::network::Network::new(vec![2,2, 1]);
+    let mut net = nn2::network::Network::new(vec![2, 1]);
+    net.format(&[ 
+        ActivationType::ReLu,
+        ActivationType::ReLu,
+    ]);
     println!("net {:?}", net.activate(vec![1.0, 1.0]));
     // Proximos objetivos: Printar progresso, printar loss, rever algoritimos
     // Criar rede com ativacoes diferentes

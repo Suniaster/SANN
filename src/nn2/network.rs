@@ -30,6 +30,15 @@ impl Network {
     return net;
   }
 
+  pub fn format(&mut self, activations: &[ActivationType]){
+    self.input.borrow_mut().change_activation(activations[0].clone());
+    for i in 1..(activations.len() - 1){
+      self.hidden[i-1].borrow_mut().change_activation(activations[i].clone());
+    }
+    
+    self.output.borrow_mut().change_activation(activations[activations.len() - 1].clone());
+  }
+
   pub fn activate(&mut self, input: Vec<f64>) -> Vec<f64>{
     self.input.borrow_mut().set_state(input);
     

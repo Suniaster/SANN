@@ -35,6 +35,11 @@ impl Layer{
       neuron.borrow_mut().activate();
     }
   }
+  pub fn change_activation(&mut self, _type: ActivationType){
+    for neuron in self.neurons.iter_mut(){
+      neuron.borrow_mut().change_activation(_type.clone());
+    }
+  }
 
   pub fn get_state(&mut self) -> Vec<f64>{
     let mut ret = vec![];
