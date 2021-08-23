@@ -41,13 +41,13 @@ fn main() {
 
     println!("Output val: {}", node2.borrow_mut().activate());
 
-    let l1 = layer::Layer::new(3);
-    let l2 = layer::Layer::new(1);
+    let mut l1 = layer::Layer::new(3);
+    let mut l2 = layer::Layer::new(1);
 
-    l1.borrow_mut().set_state(vec![4.0, 4.0, 4.0]);
-    l1.borrow_mut().project(&l2);
-    l2.borrow_mut().activate();
-    println!("{:?}", l2.borrow_mut().get_state());
+    l1.set_state(vec![4.0, 4.0, 4.0]);
+    l1.project(&l2);
+    l2.activate();
+    println!("{:?}", l2.get_state());
 
     let mut net = nn2::network::Network::new(vec![2, 1]);
     net.format(&[ 

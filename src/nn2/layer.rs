@@ -41,7 +41,7 @@ impl Layer{
     }
   }
 
-  pub fn get_state(&mut self) -> Vec<f64>{
+  pub fn get_state(&self) -> Vec<f64>{
     let mut ret = vec![];
     for neuron in self.neurons.iter(){
       ret.push(neuron.borrow().output_val);
