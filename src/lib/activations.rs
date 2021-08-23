@@ -15,11 +15,21 @@ pub fn sigmoid_derivate(x: &f64) -> f64 {
     return y * (1.0 - y);
 }
 
+pub fn linear(x: &f64) -> f64 {
+    return *x;
+}
+
+#[allow(unused_variables)]
+pub fn linear_derivate(x: &f64) -> f64 {
+    return 1.0;
+}
+
 #[derive(Clone)]
 pub enum ActivationType {
     ReLu,
     Sigmoid,
     Default,
+    Linear
 }
 
 pub struct Activation {
@@ -41,10 +51,10 @@ impl Activation {
                 f: sigmoid,
                 d: sigmoid_derivate,
             },
-            _ => Activation {
+            ActivationType::Linear | _ => Activation {
                 t: _type,
-                f: sigmoid,
-                d: sigmoid_derivate,
+                f: linear,
+                d: linear_derivate,
             },
         }
     }

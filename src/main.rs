@@ -48,7 +48,7 @@ fn main() {
     println!("{:?}", l2.get_state());
 
     let mut net = nn2::network::Network::new(vec![2, 1]);
-    net.format(&[ActivationType::ReLu, ActivationType::ReLu]);
+    net.format(&[ActivationType::Linear, ActivationType::Linear]);
     println!("net {:?}", net.activate(vec![1.0, 1.0]));
     // Proximos objetivos: Printar progresso, printar loss, rever algoritimos
     // Criar rede com ativacoes diferentes
