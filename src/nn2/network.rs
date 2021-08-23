@@ -1,53 +1,47 @@
-use super::helper::*;
 use super::layer::*;
 use super::super::lib::activations::*;
 
 
 pub struct Network{
-  input: Container<Layer>,
-  output: Container<Layer>,
-  hidden: Vec<Container<Layer>>,
+  layers: Vec<Layer>,
 }
 
 
 impl Network {
   pub fn new(layers_format: Vec<u16>) -> Network {
     let mut net = Network {
-      input: Layer::new(layers_format[0]), 
-      output: Layer::new_activation(layers_format[ layers_format.len() - 1], ActivationType::Sigmoid), 
-      hidden: vec![]
+      layers: vec![]
     };
-
-    let mut last_layer = &net.input;
-    for i in 1..(layers_format.len() - 1){
+    for i in 0..layers_format.len(){
       let new_layer = Layer::new(layers_format[i]);
-      last_layer.borrow_mut().project(&new_layer);
-      net.hidden.push(new_layer);
-      last_layer = &net.hidden.last().expect("");
+      net.layers.push(new_layer);
+      if i != 0 {
+        net.layers[i-1].project(&net.layers[i]);
+      }
     }
-
-    last_layer.borrow_mut().project(&net.output);
     return net;
   }
 
   pub fn format(&mut self, activations: &[ActivationType]){
-    self.input.borrow_mut().change_activation(activations[0].clone());
-    for i in 1..(activations.len() - 1){
-      self.hidden[i-1].borrow_mut().change_activation(activations[i].clone());
+    for i in 0..activations.len(){
+      self.layers[i].change_activation(activations[i].clone());
     }
-    
-    self.output.borrow_mut().change_activation(activations[activations.len() - 1].clone());
+  }
+
+  pub fn set_input(&mut self, input: Vec<f64>){
+    self.layers[0].set_state(input);
+  }
+
+  pub fn get_output(&self) -> Vec<f64> {
+    return self.layers.last().expect("No Output layer").get_state();
   }
 
   pub fn activate(&mut self, input: Vec<f64>) -> Vec<f64>{
-    self.input.borrow_mut().set_state(input);
-    
-    for layer in self.hidden.iter() {
-      layer.borrow_mut().activate()
+    self.set_input(input);
+    for layer in self.layers.iter().skip(1) {
+      layer.activate()
     }
-
-    self.output.borrow_mut().activate();
-    return self.output.borrow_mut().get_state();
+    return self.get_output();
   }
 }
 
