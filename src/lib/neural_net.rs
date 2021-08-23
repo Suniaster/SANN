@@ -36,6 +36,25 @@ impl NeuralNet {
         return 2.0 * (output - expected);
     }
 
+    pub fn calculate_loss_vec(input:&Array1<f64>, expected: &Array1<f64>) -> f64 {
+        return input.iter().zip(expected.iter()).fold(0.0, |sum, (x,y)| -> f64 { return sum + NeuralNet::calculate_loss(x, y);})
+    }
+
+    pub fn train_batch(&mut self, input:&Vec<Array1<f64>>, expected: &Vec<Array1<f64>>, learning_rate: f64, iterations: usize){
+        for i in 0..iterations{
+            print!("\rIteration {} ######", i+1);
+            let mut loss = 0.0;
+            for x in 0..input.len(){
+                let result = self.train(&input[x],&expected[x], learning_rate);
+                loss += NeuralNet::calculate_loss_vec(result, &expected[x]);
+            }
+            loss = loss / input.len() as f64;
+            print!(" Loss: {} ", loss);
+        }
+        println!();
+    }
+
+
     pub fn train(&mut self, input:&Array1<f64>, expected: &Array1<f64>, learning_rate: f64) -> &Array1<f64>{
         self.foward(input);
         self.backward(expected);

@@ -15,6 +15,7 @@ pub fn sigmoid_derivate(x: &f64) -> f64 {
     return y * (1.0 - y);
 }
 
+#[derive(Clone)]
 pub enum ActivationType {
     ReLu,
     Sigmoid,
