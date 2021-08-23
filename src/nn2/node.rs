@@ -14,7 +14,7 @@ pub struct Neuron {
     inputs: Vec<Container<Axon>>,
     activation: Activation,
     bias: f64,
-    pub output_val: f64,
+    output_val: f64,
 }
 
 impl Axon {
