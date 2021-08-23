@@ -64,7 +64,30 @@ impl Neuron {
         return self.output_val;
     }
 
-    pub fn set_out(neuron: Container<Neuron>, val: f64) {
-        neuron.borrow_mut().output_val = val;
+    pub fn set_out(&mut self, val: f64) {
+        self.output_val = val;
+    }
+}
+
+pub trait NeuronContainer {
+    fn change_activation(&self, _type: ActivationType);
+    fn activate(&self) -> f64;
+    fn set_out(&self, val: f64) -> &Self;
+    fn get_out(&self) -> f64;
+}
+
+impl NeuronContainer for Container<Neuron> {
+    fn change_activation(&self, _type: ActivationType) {
+        self.borrow_mut().change_activation(_type);
+    }
+    fn activate(&self) -> f64 {
+        return self.borrow_mut().activate();
+    }
+    fn set_out(&self, val: f64) -> &Self {
+        self.borrow_mut().set_out(val);
+        return self;
+    }
+    fn get_out(&self) -> f64 {
+        return self.borrow_mut().output_val;
     }
 }

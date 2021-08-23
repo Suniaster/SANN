@@ -4,6 +4,7 @@ mod nn2;
 use lib::activations::ActivationType;
 use nn2::layer;
 use nn2::node::Neuron;
+use nn2::node::NeuronContainer;
 #[test]
 fn test_nd_neural() {
     let input1 = array![1.0, 0.0];
@@ -35,7 +36,7 @@ fn main() {
     let node2 = nn2::node::Neuron::new();
 
     Neuron::project(&node1, &node2);
-    Neuron::set_out(node1, 1.0);
+    node1.set_out(1.0);
 
     println!("Output val: {}", node2.borrow_mut().activate());
 

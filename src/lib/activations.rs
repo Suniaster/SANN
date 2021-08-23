@@ -29,7 +29,7 @@ pub enum ActivationType {
     ReLu,
     Sigmoid,
     Default,
-    Linear
+    Linear,
 }
 
 pub struct Activation {

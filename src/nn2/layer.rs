@@ -31,19 +31,19 @@ impl Layer {
 
     pub fn activate(&mut self) {
         for neuron in self.neurons.iter() {
-            neuron.borrow_mut().activate();
+            neuron.activate();
         }
     }
     pub fn change_activation(&mut self, _type: ActivationType) {
         for neuron in self.neurons.iter_mut() {
-            neuron.borrow_mut().change_activation(_type.clone());
+            neuron.change_activation(_type.clone());
         }
     }
 
     pub fn get_state(&self) -> Vec<f64> {
         let mut ret = vec![];
         for neuron in self.neurons.iter() {
-            ret.push(neuron.borrow().output_val);
+            ret.push(neuron.get_out());
         }
         return ret;
     }
@@ -51,8 +51,7 @@ impl Layer {
     pub fn set_state(&mut self, input: Vec<f64>) {
         for neuron_i in 0..self.neurons.len() {
             let neuron = &self.neurons[neuron_i];
-            // ret.push(neuron.borrow().output_val);
-            neuron.borrow_mut().output_val = input[neuron_i];
+            neuron.set_out(input[neuron_i]);
         }
     }
 }
