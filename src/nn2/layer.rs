@@ -6,6 +6,23 @@ pub struct Layer {
     neurons: Vec<Container<Neuron>>,
 }
 
+macro_rules! create_neuron_mapper {
+    ($f_name: ident, $mapped_f: ident) => {
+        pub fn $f_name(&self) {
+            for neuron in self.neurons.iter() {
+                neuron.$mapped_f();
+            }
+        }
+    };
+    ($f_name: ident, $mapped_f: ident, $param_t: ty) => {
+        pub fn $f_name(&self, p1: $param_t) {
+            for neuron in self.neurons.iter() {
+                neuron.$mapped_f(p1);
+            }
+        }
+    };
+}
+
 impl Layer {
     pub fn new(size: u16) -> Layer {
         return Layer::new_activation(size, ActivationType::ReLu);
@@ -29,11 +46,16 @@ impl Layer {
         }
     }
 
-    pub fn activate(&mut self) {
-        for neuron in self.neurons.iter() {
-            neuron.activate();
+    pub fn set_output_error(&self, error: &[f64]) {
+        for i in 0..self.neurons.len() {
+            self.neurons[i].set_output_error(error[i]);
         }
     }
+
+    create_neuron_mapper!(update_error, set_backpropag_error);
+    create_neuron_mapper!(activate, activate);
+    create_neuron_mapper!(update, update_weights, f64);
+
     pub fn change_activation(&mut self, _type: ActivationType) {
         for neuron in self.neurons.iter_mut() {
             neuron.change_activation(_type.clone());
