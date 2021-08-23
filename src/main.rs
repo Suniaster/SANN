@@ -1,38 +1,36 @@
 use ndarray::array;
 mod lib;
 mod nn2;
-use nn2::node::Neuron;
-use nn2::layer;
 use lib::activations::ActivationType;
+use nn2::layer;
+use nn2::node::Neuron;
 #[test]
 fn test_nd_neural() {
-  let input1 = array![1.0, 0.0];
-  let input3 = array![0.0, 0.0];
+    let input1 = array![1.0, 0.0];
+    let input3 = array![0.0, 0.0];
 
-  let batch = vec![
-      array![1.0, 0.0],
-      array![0.0, 1.0],
-      array![0.0, 0.0],
-      array![1.0, 1.0]
-  ];
-  let y = vec![
-      array![0.0, 1.0],
-      array![0.0, 1.0],
-      array![1.0, 0.0],
-      array![0.0, 1.0]
-  ];
+    let batch = vec![
+        array![1.0, 0.0],
+        array![0.0, 1.0],
+        array![0.0, 0.0],
+        array![1.0, 1.0],
+    ];
+    let y = vec![
+        array![0.0, 1.0],
+        array![0.0, 1.0],
+        array![1.0, 0.0],
+        array![0.0, 1.0],
+    ];
 
-  let mut nn2 = lib::neural_net::NeuralNet::from_format(&[2, 3, 2, 2]);
-  
-  nn2.train_batch(&batch, &y, 0.8, 10000);
+    let mut nn2 = lib::neural_net::NeuralNet::from_format(&[2, 3, 2, 2]);
 
-  println!("Predict 1: {:?}", nn2.activate(&input1));
-  println!("Predict 0: {:?}", nn2.activate(&input3));
+    nn2.train_batch(&batch, &y, 0.8, 10000);
 
+    println!("Predict 1: {:?}", nn2.activate(&input1));
+    println!("Predict 0: {:?}", nn2.activate(&input3));
 }
 
 fn main() {
-    
     let node1 = nn2::node::Neuron::new();
     let node2 = nn2::node::Neuron::new();
 
@@ -50,13 +48,10 @@ fn main() {
     println!("{:?}", l2.get_state());
 
     let mut net = nn2::network::Network::new(vec![2, 1]);
-    net.format(&[ 
-        ActivationType::ReLu,
-        ActivationType::ReLu,
-    ]);
+    net.format(&[ActivationType::ReLu, ActivationType::ReLu]);
     println!("net {:?}", net.activate(vec![1.0, 1.0]));
     // Proximos objetivos: Printar progresso, printar loss, rever algoritimos
     // Criar rede com ativacoes diferentes
-    // 
+    //
     // Ver como implementar outros tipos de rede (i.e recursiva, com memoria)
 }

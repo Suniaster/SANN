@@ -25,7 +25,6 @@ impl Perceptron {
         };
     }
 
-
     pub fn foward(&self, input: &Array1<f64>) -> Array1<f64> {
         let propagation = self.input_weigths.dot(input);
         return array![propagation + self.bias];
