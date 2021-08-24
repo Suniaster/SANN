@@ -5,6 +5,8 @@ mod nn2;
 extern crate time_test;
 
 fn main() {
+    nn2::train();
+    // lib::train();
     // Proximos objetivos: Printar progresso, printar loss, rever algoritimos
     // Criar rede com ativacoes diferentes
     //

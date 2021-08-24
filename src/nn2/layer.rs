@@ -2,8 +2,16 @@ use super::super::lib::activations::*;
 use super::helper::*;
 use super::node::*;
 
+use ndarray::Array2;
+use ndarray::Array1;
+use ndarray::array;
+use ndarray::arr0;
+
 pub struct Layer {
     pub neurons: Vec<Container<Neuron>>,
+    weights: Array2<f64>,
+    biases: Array1<f64>,
+    projected_size: u16
 }
 
 macro_rules! create_neuron_mapper {
@@ -29,7 +37,12 @@ impl Layer {
     }
 
     pub fn new_activation(size: u16, _type: ActivationType) -> Layer {
-        let mut new_layer = Layer { neurons: vec![] };
+        let mut new_layer = Layer { 
+            neurons: vec![], 
+            weights: Array2::from_shape_vec((0, size as usize), vec![]).unwrap(),
+            biases: array![],
+            projected_size: 0
+        };
         for _ in 0..size {
             new_layer
                 .neurons
@@ -75,5 +88,31 @@ impl Layer {
             let neuron = &self.neurons[neuron_i];
             neuron.set_out(input[neuron_i]);
         }
+    }
+
+    pub fn activate_with(&self, input: Vec<f64>)-> Vec<f64>{
+        let result = self.weights.dot(&Array1::from(input));
+        let activation = &self.neurons[0].borrow().activation;
+        let sum = &result + &self.biases;
+        return sum.map(activation.f).to_vec();
+    }
+    
+    pub fn update_weights(&mut self){
+        let projected_size = self.neurons[0].borrow().inputs.len();
+        let mut weights = Array2::from_shape_vec((0, projected_size), vec![]).unwrap();
+        
+        self.biases = array![];
+        for neuron in self.neurons.iter(){
+            weights.push_row(
+                Array1::from_vec(
+                    neuron.get_weights()
+                ).view()
+            ).unwrap();
+
+            self.biases
+                .push(ndarray::Axis(0), arr0(neuron.borrow().bias).view())
+                .expect("Nao salvo os Bias");
+        }
+        self.weights = weights;
     }
 }

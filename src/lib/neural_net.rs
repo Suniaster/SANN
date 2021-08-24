@@ -1,6 +1,7 @@
 use super::layer;
 use ndarray::Array1;
-// use ndarray::array;
+use super::activations::ActivationType;
+use super::activations::Activation;
 
 pub struct NeuralNet {
     layers: Vec<layer::Layer>,
@@ -24,9 +25,11 @@ impl NeuralNet {
         return NeuralNet { layers };
     }
 
-    // pub fn create(layers: Vec<layer::Layer>) -> NeuralNet{
-    //     return NeuralNet { layers };
-    // }
+    pub fn format(&mut self, acts: &[ActivationType]){
+        for i in 0..acts.len() {
+            self.layers[i].activation = Activation::create(acts[i].clone());
+        }
+    }
 
     pub fn calculate_loss(output: &f64, expected: &f64) -> f64 {
         return (output - expected).powi(2);

@@ -11,7 +11,7 @@ fn activate_million_times(){
     time_test!();
     use super::lib::activations::ActivationType;
 
-    let mut xor_net = network::Network::new(&[2, 3, 2, 2]);
+    let mut xor_net = network::Network::new(&[2, 3, 100, 50, 2, 2]);
     xor_net.format(&[
         ActivationType::Linear,
         ActivationType::Sigmoid,
@@ -19,8 +19,9 @@ fn activate_million_times(){
         ActivationType::Sigmoid,
     ]);
 
-    for _ in 0..1_000_00 {
-        xor_net.activate(&[1.0, 0.0]);
+    let input = &[1.0, 0.0];
+    for _ in 0..50_000 {
+        xor_net.activate(input);
     }
 }
 

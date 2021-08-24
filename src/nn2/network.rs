@@ -16,6 +16,8 @@ impl Network {
                 layers[i - 1].project(&layers[i]);
             }
         }
+        for layer in layers.iter_mut() { layer.update_weights(); }
+
         return Network { layers };
     }
 
@@ -43,13 +45,14 @@ impl Network {
             print!("\rIteration {} ######", iteration + 1);
             let mut loss = 0.0;
             for i in 0..input.len(){
-                self.activate(&input[i]);
+                self.activate_with(&input[i]);
                 loss += self.update_errors(&expected[i]);
                 self.learn(learning_rate);
             }            
             loss = loss / input.len() as f64;
             print!(" Loss: {} ", loss);
         }
+        self.update();
         println!();
     }
     pub fn update_errors(&self, expected: &[f64])-> f64 {
@@ -77,10 +80,24 @@ impl Network {
     }
 
     pub fn activate(&mut self, input: &[f64]) -> Vec<f64> {
+        let mut output = input.to_vec();
+        for layer in self.layers.iter().skip(1) {
+            output = layer.activate_with(output);
+        }
+        return output;
+    }
+
+    fn activate_with(&mut self, input: &[f64]) -> Vec<f64> {
         self.set_input(input);
         for layer in self.layers.iter_mut().skip(1) {
             layer.activate();
         }
         return self.get_output();
+    }
+
+    fn update(&mut self){
+        for layer in self.layers.iter_mut(){
+            layer.update_weights();
+        }
     }
 }

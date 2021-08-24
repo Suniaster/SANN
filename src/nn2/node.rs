@@ -11,9 +11,9 @@ pub struct Axon {
 
 pub struct Neuron {
     outputs: Vec<Container<Axon>>,
-    inputs: Vec<Container<Axon>>,
-    activation: Activation,
-    bias: f64,
+    pub inputs: Vec<Container<Axon>>,
+    pub activation: Activation,
+    pub bias: f64,
     output_val: f64,
     delta_error: f64,
 }
@@ -82,15 +82,22 @@ impl Neuron {
     }
 
     pub fn activate(&mut self) -> f64 {
-        self.output_val = 0.0;
+        let mut out = 0.0;
         for axon in self.inputs.iter() {
-            let mut _axon = axon.borrow_mut();
-            _axon.update();
-            self.output_val += _axon.value;
+            let _axon = axon.borrow();
+            out += _axon.weight * _axon.src.borrow().output_val;
         }
-        self.output_val += self.bias;
-        self.output_val = (self.activation.f)(&self.output_val);
+        out += self.bias;
+        self.output_val = (self.activation.f)(&out);
         return self.output_val;
+    }
+
+    pub fn get_weights(&self) -> Vec<f64> {
+        let mut out = vec![];
+        for axon in self.inputs.iter() {
+            out.push(axon.borrow().weight);
+        }
+        return out;
     }
 
     pub fn set_out(&mut self, val: f64) {
@@ -125,11 +132,16 @@ pub trait NeuronContainer {
     fn set_output_error(&self, expected_val: f64);
     fn set_backpropag_error(&self);
     fn update_weights(&self, learning_rate: f64);
+    fn get_weights(&self) -> Vec<f64>;
 }
 
 impl NeuronContainer for Container<Neuron> {
     fn activate(&self) -> f64 {
         return self.borrow_mut().activate();
+    }
+
+    fn get_weights(&self) -> Vec<f64> {
+        return  self.borrow().get_weights();
     }
 
     // Getters

@@ -31,7 +31,7 @@ impl Layer {
             last_output: array![],
             deltas: array![],
             weights_matrix: Array2::from_shape_vec((0, input_shape), vec![]).unwrap(),
-            activation: Activation::create(ActivationType::Default),
+            activation: Activation::create(ActivationType::Sigmoid),
         };
     }
 
