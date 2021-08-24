@@ -25,6 +25,7 @@ pub fn linear_derivate(x: &f64) -> f64 {
 }
 
 #[derive(Clone)]
+#[allow(dead_code)]
 pub enum ActivationType {
     ReLu,
     Sigmoid,

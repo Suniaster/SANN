@@ -4,7 +4,6 @@ use rand;
 
 pub struct Axon {
     weight: f64,
-    value: f64,
     src: Container<Neuron>,
     dest: Container<Neuron>,
 }
@@ -16,12 +15,6 @@ pub struct Neuron {
     pub bias: f64,
     output_val: f64,
     delta_error: f64,
-}
-
-impl Axon {
-    fn update(&mut self) {
-        self.value = self.src.borrow().output_val * self.weight;
-    }
 }
 
 impl Neuron {
@@ -44,8 +37,7 @@ impl Neuron {
         let new_axon = new_container(Axon {
             weight: (rand::random::<f64>() * 2.0) - 1.0,
             src: src.clone(),
-            dest: dest.clone(),
-            value: 0.0,
+            dest: dest.clone()
         });
 
         src.borrow_mut().outputs.push(new_axon.clone());
@@ -61,9 +53,7 @@ impl Neuron {
         let mut total_error = 0.0;
         for axon in self.outputs.iter() {
             let _axon = axon.borrow();
-            let delta = _axon
-                        .dest.borrow()
-                        .delta_error;
+            let delta = _axon.dest.borrow().delta_error;
             total_error += delta * _axon.weight;
         }
         self.delta_error = total_error * (self.activation.d)(&self.output_val);
@@ -141,7 +131,7 @@ impl NeuronContainer for Container<Neuron> {
     }
 
     fn get_weights(&self) -> Vec<f64> {
-        return  self.borrow().get_weights();
+        return self.borrow().get_weights();
     }
 
     // Getters

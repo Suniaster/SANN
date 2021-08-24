@@ -16,7 +16,9 @@ impl Network {
                 layers[i - 1].project(&layers[i]);
             }
         }
-        for layer in layers.iter_mut() { layer.update_weights(); }
+        for layer in layers.iter_mut() {
+            layer.update_weights();
+        }
 
         return Network { layers };
     }
@@ -27,35 +29,37 @@ impl Network {
         }
     }
 
-    pub fn get_loss(&self, expected: &[f64]) -> f64{
-        let mut loss = 0.0;
-        for i in 0..self.layers.last().expect("Empty network").neurons.len() {
-            let neuron = &self.layers.last().expect("Empty network").neurons[i];
-            loss += (neuron.get_out() - expected[i]).powi(2);
-        }
-        return loss;
-    }
-
-    pub fn train(&mut self,
+    pub fn train(
+        &mut self,
         input: &Vec<Vec<f64>>,
         expected: &Vec<Vec<f64>>,
         learning_rate: f64,
-        iterations: usize,){
-        for iteration in 0..iterations{
+        iterations: usize,
+    ) {
+        for iteration in 0..iterations {
             print!("\rIteration {} ######", iteration + 1);
             let mut loss = 0.0;
-            for i in 0..input.len(){
+            for i in 0..input.len() {
                 self.activate_with(&input[i]);
                 loss += self.update_errors(&expected[i]);
                 self.learn(learning_rate);
-            }            
+            }
             loss = loss / input.len() as f64;
             print!(" Loss: {} ", loss);
         }
         self.update();
         println!();
     }
-    pub fn update_errors(&self, expected: &[f64])-> f64 {
+
+    pub fn activate(&mut self, input: &[f64]) -> Vec<f64> {
+        let mut output = input.to_vec();
+        for layer in self.layers.iter().skip(1) {
+            output = layer.activate(output);
+        }
+        return output;
+    }
+
+    fn update_errors(&self, expected: &[f64]) -> f64 {
         let output_layer = self.layers.last().expect("Empty network");
         output_layer.set_output_error(expected);
 
@@ -65,38 +69,39 @@ impl Network {
         return self.get_loss(expected);
     }
 
-    pub fn learn(&self, learning_rate: f64) {
+    fn get_loss(&self, expected: &[f64]) -> f64 {
+        let mut loss = 0.0;
+        for i in 0..self.layers.last().expect("Empty network").neurons.len() {
+            let neuron = &self.layers.last().expect("Empty network").neurons[i];
+            loss += (neuron.get_out() - expected[i]).powi(2);
+        }
+        return loss;
+    }
+
+    fn learn(&self, learning_rate: f64) {
         for layer in self.layers.iter() {
             layer.update(learning_rate);
         }
     }
 
-    pub fn set_input(&mut self, input: &[f64]) {
-        self.layers[0].set_state(input);
-    }
-
-    pub fn get_output(&self) -> Vec<f64> {
+    fn get_output(&self) -> Vec<f64> {
         return self.layers.last().expect("No Output layer").get_state();
     }
 
-    pub fn activate(&mut self, input: &[f64]) -> Vec<f64> {
-        let mut output = input.to_vec();
-        for layer in self.layers.iter().skip(1) {
-            output = layer.activate_with(output);
-        }
-        return output;
+    fn set_input(&mut self, input: &[f64]) {
+        self.layers[0].set_state(input);
     }
 
     fn activate_with(&mut self, input: &[f64]) -> Vec<f64> {
         self.set_input(input);
         for layer in self.layers.iter_mut().skip(1) {
-            layer.activate();
+            layer.activate_neurons();
         }
         return self.get_output();
     }
 
-    fn update(&mut self){
-        for layer in self.layers.iter_mut(){
+    fn update(&mut self) {
+        for layer in self.layers.iter_mut() {
             layer.update_weights();
         }
     }
