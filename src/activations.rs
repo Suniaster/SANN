@@ -24,7 +24,10 @@ pub fn linear_derivate(x: &f64) -> f64 {
     return 1.0;
 }
 
+use serde::{ Serialize, Deserialize };
+
 #[derive(Clone)]
+#[derive(Serialize, Deserialize)]
 #[allow(dead_code)]
 pub enum ActivationType {
     ReLu,

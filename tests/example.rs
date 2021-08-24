@@ -1,5 +1,6 @@
 use sann::network;
 use sann::activations::*;
+use sann::io;
 #[macro_use]
 extern crate time_test;
 
@@ -14,6 +15,11 @@ pub fn save_net(){
         ActivationType::ReLu,
         ActivationType::Sigmoid,
     ]);
+    
+    let first_file = String::from("original.json");
+    io::save_net(&xnet, &first_file);
 
-    xnet.save(&String::from("teste.json"));
+    let net2 = io::load_net(&first_file);
+    
+    io::save_net(&net2, &String::from("loaded.json"));
 }

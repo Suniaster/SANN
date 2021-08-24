@@ -3,7 +3,7 @@ use super::helper::*;
 use rand;
 
 pub struct Axon {
-    weight: f64,
+    pub weight: f64,
     src: Container<Neuron>,
     dest: Container<Neuron>,
 }

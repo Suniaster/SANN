@@ -14,11 +14,12 @@ categories = ["accessibility"]
 
 [dependencies]
 vectors = "0.3.0"
-ndarray = "0.15.0"
+ndarray = { version = "0.15.0", features = ["serde"] }
 rand = "0.8.0"
 time-test = "*"
 rustc-serialize = "0.3"
-
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
 # [[bin]]
 # name = "sann"
 # path = "src/main.rs"
