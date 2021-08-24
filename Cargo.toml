@@ -17,4 +17,12 @@ vectors = "0.3.0"
 ndarray = "0.15.0"
 rand = "0.8.0"
 time-test = "*"
+rustc-serialize = "0.3"
 
+# [[bin]]
+# name = "sann"
+# path = "src/main.rs"
+
+# [lib]
+# name = "sann"
+# path = "src/lib.rs"

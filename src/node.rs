@@ -1,4 +1,4 @@
-use super::super::lib::activations::*;
+use super::activations::*;
 use super::helper::*;
 use rand;
 

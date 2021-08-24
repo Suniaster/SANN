@@ -1,9 +1,9 @@
-use super::super::lib::activations::*;
+use super::activations::*;
 use super::layer::*;
 use super::node::*;
 
 pub struct Network {
-    layers: Vec<Layer>,
+    pub layers: Vec<Layer>,
 }
 
 impl Network {

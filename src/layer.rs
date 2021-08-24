@@ -9,8 +9,8 @@ use ndarray::Array2;
 
 pub struct Layer {
     pub neurons: Vec<Container<Neuron>>,
-    weights: Array2<f64>,
-    biases: Array1<f64>
+    pub weights: Array2<f64>,
+    pub biases: Array1<f64>
 }
 
 macro_rules! create_neuron_mapper {
