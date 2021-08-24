@@ -3,7 +3,7 @@ use super::helper::*;
 use super::node::*;
 
 pub struct Layer {
-    neurons: Vec<Container<Neuron>>,
+    pub neurons: Vec<Container<Neuron>>,
 }
 
 macro_rules! create_neuron_mapper {
@@ -70,7 +70,7 @@ impl Layer {
         return ret;
     }
 
-    pub fn set_state(&mut self, input: Vec<f64>) {
+    pub fn set_state(&mut self, input: &[f64]) {
         for neuron_i in 0..self.neurons.len() {
             let neuron = &self.neurons[neuron_i];
             neuron.set_out(input[neuron_i]);

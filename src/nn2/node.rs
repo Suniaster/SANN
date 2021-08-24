@@ -69,11 +69,12 @@ impl Neuron {
         self.delta_error = total_error * (self.activation.d)(&self.output_val);
     }
 
-    pub fn update_weights(&self, l_rate: f64) {
+    pub fn update_weights(&mut self, l_rate: f64) {
         for axon in self.inputs.iter() {
             let mut _axon = axon.borrow_mut();
             _axon.weight += self.delta_error * _axon.src.get_out() * l_rate;
         }
+        self.bias += self.delta_error * l_rate;
     }
 
     pub fn change_activation(&mut self, _type: ActivationType) {
@@ -87,6 +88,7 @@ impl Neuron {
             _axon.update();
             self.output_val += _axon.value;
         }
+        self.output_val += self.bias;
         self.output_val = (self.activation.f)(&self.output_val);
         return self.output_val;
     }

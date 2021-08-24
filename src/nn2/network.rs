@@ -1,5 +1,6 @@
 use super::super::lib::activations::*;
 use super::layer::*;
+use super::node::*;
 
 pub struct Network {
     layers: Vec<Layer>,
@@ -24,14 +25,41 @@ impl Network {
         }
     }
 
-    pub fn update_errors(&self, expected: &[f64]) {
+    pub fn get_loss(&self, expected: &[f64]) -> f64{
+        let mut loss = 0.0;
+        for i in 0..self.layers.last().expect("Empty network").neurons.len() {
+            let neuron = &self.layers.last().expect("Empty network").neurons[i];
+            loss += (neuron.get_out() - expected[i]).powi(2);
+        }
+        return loss;
+    }
+
+    pub fn train(&mut self,
+        input: &Vec<Vec<f64>>,
+        expected: &Vec<Vec<f64>>,
+        learning_rate: f64,
+        iterations: usize,){
+        for iteration in 0..iterations{
+            print!("\rIteration {} ######", iteration + 1);
+            let mut loss = 0.0;
+            for i in 0..input.len(){
+                self.activate(&input[i]);
+                loss += self.update_errors(&expected[i]);
+                self.learn(learning_rate);
+            }            
+            loss = loss / input.len() as f64;
+            print!(" Loss: {} ", loss);
+        }
+        println!();
+    }
+    pub fn update_errors(&self, expected: &[f64])-> f64 {
         let output_layer = self.layers.last().expect("Empty network");
         output_layer.set_output_error(expected);
 
         for layer in self.layers.iter().rev().skip(1) {
-            println!("Ex1");
             layer.update_error();
         }
+        return self.get_loss(expected);
     }
 
     pub fn learn(&self, learning_rate: f64) {
@@ -40,7 +68,7 @@ impl Network {
         }
     }
 
-    pub fn set_input(&mut self, input: Vec<f64>) {
+    pub fn set_input(&mut self, input: &[f64]) {
         self.layers[0].set_state(input);
     }
 
@@ -48,7 +76,7 @@ impl Network {
         return self.layers.last().expect("No Output layer").get_state();
     }
 
-    pub fn activate(&mut self, input: Vec<f64>) -> Vec<f64> {
+    pub fn activate(&mut self, input: &[f64]) -> Vec<f64> {
         self.set_input(input);
         for layer in self.layers.iter_mut().skip(1) {
             layer.activate();
