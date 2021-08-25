@@ -7,7 +7,7 @@ A crate that implements simple usage of dense neural networks.
 Add this to your dependencies on `Cargo.toml`:
 
 ```toml
-sann = "{ git = "https://github.com/Suniaster/SANN" }"
+sann = { git = "https://github.com/Suniaster/SANN.git" }
 ```
 
 ## Usage
