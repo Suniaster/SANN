@@ -20,6 +20,8 @@ time-test = "*"
 rustc-serialize = "0.3"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
+nalgebra = "0.31.0"
+
 # [[bin]]
 # name = "sann"
 # path = "src/main.rs"
