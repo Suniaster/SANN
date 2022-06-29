@@ -18,3 +18,20 @@ pub fn t1_test_neuron(){
     let output = n.activate(&input);
     assert_ne!(output, 0.0);
 }
+#[test]
+pub fn t2_test_layer(){
+    let mut layer = DenseLayer::<2, 3>::new();
+    layer.randomize();
+
+    let layer_fmt = layer.format();
+    assert_eq!(layer_fmt.0, 2);
+
+    let input:SVector<f64, 2> = SVector::from_vec(vec![0.0, 0.0]);
+    let output = layer.activate(&input);
+    assert_eq!(output.len(), 3);
+    assert_eq!(output.sum(), 0.0);
+
+    let input:SVector<f64, 2> = SVector::from_vec(vec![1.0, 1.0]);
+    let output = layer.activate(&input);
+    assert_ne!(output.sum(), 0.0);
+}

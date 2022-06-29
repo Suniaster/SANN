@@ -1,4 +1,6 @@
-use nalgebra::{SVector, SMatrix, DMatrix};
+#![feature(const_generics_defaults)]
+
+use nalgebra::{SVector, SMatrix, DVector, Matrix, ArrayStorage, Const, DMatrix};
 use rand::Rng;
 
 pub struct Neuron<const D: usize>{
@@ -26,45 +28,66 @@ impl<const D:usize> Neuron<D> {
     }
 }
 
-trait LayerActivation<const IN_D: usize, const OUT_D: usize> {
-    fn activate(&self, inputs: &SVector<f64, IN_D>) -> &SVector<f64, IN_D>;
+type GenerictMat<const D1:usize, const D2:usize> = Matrix<f64, Const<D1>, Const<D2>, ArrayStorage<f64, 2, 2>>;
+
+trait LayerFormat {
+    const F: usize;
+}  
+
+pub trait NetLayer{
+    fn activate(&self, inputs: &DMatrix<f64>) -> DMatrix<f64>;
 }
 
-struct DefaultLayer<const IN_FMT: usize, const OUT_FMT: usize> {
-    pub neurons: Vec<Neuron<IN_FMT>>,
-    pub last_activation: SVector<f64, OUT_FMT>,
+pub struct DenseLayer<const IN_FMT: usize, const OUT_FMT: usize> {
+    neurons: Vec<Neuron<IN_FMT>>,
+    weights_mat: SMatrix<f64, OUT_FMT, IN_FMT>,
+    bias_vec: SVector<f64, OUT_FMT>,
+    last_activation: SVector<f64, OUT_FMT>,
 }
 
-impl<const IN_FMT:usize, const OUT_FMT:usize> DefaultLayer<IN_FMT, OUT_FMT>{
-    pub fn new(size:usize) -> DefaultLayer<IN_FMT, OUT_FMT> {
+impl<const IN_FMT:usize, const OUT_FMT:usize> DenseLayer<IN_FMT, OUT_FMT>{
+    pub fn new() -> DenseLayer<IN_FMT, OUT_FMT> {
         let mut neurons = Vec::new();
-        for _ in 0..size {
+        for _ in 0..OUT_FMT {
             neurons.push(Neuron::new(0.0));
         }
-        DefaultLayer {
+        DenseLayer {
             neurons,
+            weights_mat: SMatrix::<f64, OUT_FMT, IN_FMT>::zeros(),
+            bias_vec: SVector::<f64, OUT_FMT>::zeros(),
             last_activation: SVector::zeros(),
         }
     }
 
-    pub fn get_layer_mat(&self) -> SMatrix<f64, IN_FMT, OUT_FMT> {
-        let mut layer_mat: SMatrix<f64, IN_FMT, OUT_FMT> = SMatrix::zeros();
-        for neuron in 0..OUT_FMT {
-            for w in 0..IN_FMT {
-                layer_mat[(neuron, w)] = self.neurons[neuron].weights[w];
+    pub fn randomize(&mut self) {
+        for n in &mut self.neurons {
+            n.randomize();
+        }
+        self.update_weights_mat();
+    }
+
+    pub fn update_weights_mat(&mut self) {
+        for (i, n) in self.neurons.iter().enumerate() {
+            for (j, w) in n.weights.iter().enumerate() {
+                self.weights_mat[(i, j)] = *w;
             }
         }
-        layer_mat
+    }
+
+    pub fn format(&self) -> (usize, usize) {
+        (IN_FMT, OUT_FMT)
     }
 }
 
-impl<const I:usize, const O:usize> LayerActivation<I,O> for DefaultLayer<I,O> {
-    
-    fn activate(&self, inputs: &SVector<f64, I>) -> &SVector<f64, I> {
-        for neuron in 0..O {
-            outputs[neuron] = self.neurons[neuron].activate(inputs);
-        }
-        &outputs
+impl<const I:usize, const O:usize> NetLayer for DenseLayer<I,O> {
+    fn activate(&self, inputs: &DMatrix<f64>) -> DMatrix<f64> {
+        let out = self.weights_mat * inputs + self.bias_vec;
     }
+}
 
+
+/********** Network *********/
+
+pub struct ArtificialNetwork {
+    layers: Vec<Box<dyn NetLayer>>
 }
