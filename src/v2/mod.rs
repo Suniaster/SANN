@@ -1,5 +1,6 @@
 use nalgebra::{SVector, SMatrix};
 use rand::Rng;
+use super::activations::{Activation, ActivationType};
 
 pub struct Neuron<const D: usize>{
     pub weights: SVector<f64, D>,
@@ -44,7 +45,9 @@ pub trait NetLayer{
 pub struct DenseLayer<const IN_FMT: usize, const OUT_FMT: usize> {
     neurons: Vec<Neuron<IN_FMT>>,
     weights_mat: SMatrix<f64, OUT_FMT, IN_FMT>,
-    bias_vec: SVector<f64, OUT_FMT>
+    bias_vec: SVector<f64, OUT_FMT>,
+
+    activation: Activation
 }
 
 impl<const IN_FMT:usize, const OUT_FMT:usize> DenseLayer<IN_FMT, OUT_FMT>{
@@ -56,7 +59,8 @@ impl<const IN_FMT:usize, const OUT_FMT:usize> DenseLayer<IN_FMT, OUT_FMT>{
         DenseLayer {
             neurons,
             weights_mat: SMatrix::<f64, OUT_FMT, IN_FMT>::zeros(),
-            bias_vec: SVector::<f64, OUT_FMT>::zeros()
+            bias_vec: SVector::<f64, OUT_FMT>::zeros(),
+            activation: Activation::create(ActivationType::Default)
         }
     }
 
@@ -88,7 +92,8 @@ impl<const I:usize, const O:usize> NetLayer for DenseLayer<I,O> {
     fn activate(&self, inputs: Vec<f64>) -> Vec<f64> {
         let input_vec:SVector<f64, I> = SVector::from_vec(inputs);
         let out: SVector<f64, O> = self.weights_mat * input_vec + self.bias_vec;
-        out.data.0[0].to_vec()
+        let out:Vec<f64> = out.data.0[0].to_vec();
+        out.iter().map(|o| (self.activation.f)(o)).collect()
     }
 
     fn format(&self) -> (usize, usize) {
