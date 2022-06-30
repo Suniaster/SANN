@@ -28,7 +28,7 @@ impl<const D:usize> Neuron<D> {
         self.bias = 0.0;
     }
 
-    pub fn activate(&self, inputs: &SVector<f64, D>) -> f64 {
+    pub fn foward(&self, inputs: &SVector<f64, D>) -> f64 {
         inputs.dot(&self.weights) + self.bias
     }
 }
@@ -38,7 +38,7 @@ trait LayerFormat {
 }  
 
 pub trait NetLayer{
-    fn activate(&self, inputs: Vec<f64>) -> Vec<f64>;
+    fn foward(&self, inputs: Vec<f64>) -> Vec<f64>;
     fn format(&self) -> (usize, usize);
 }
 
@@ -89,7 +89,7 @@ impl<const IN_FMT:usize, const OUT_FMT:usize> DenseLayer<IN_FMT, OUT_FMT>{
 }
 
 impl<const I:usize, const O:usize> NetLayer for DenseLayer<I,O> {
-    fn activate(&self, inputs: Vec<f64>) -> Vec<f64> {
+    fn foward(&self, inputs: Vec<f64>) -> Vec<f64> {
         let input_vec:SVector<f64, I> = SVector::from_vec(inputs);
         let out: SVector<f64, O> = self.weights_mat * input_vec + self.bias_vec;
         let out:Vec<f64> = out.data.0[0].to_vec();
@@ -122,10 +122,10 @@ impl ArtificialNetwork {
     }
 
     
-    pub fn activate(&self, inputs: Vec<f64>) -> Vec<f64> {
+    pub fn foward(&self, inputs: Vec<f64>) -> Vec<f64> {
         let mut inputs = inputs;
         for layer in &self.layers {
-            inputs = layer.activate(inputs);
+            inputs = layer.foward(inputs);
         }
         inputs
     }
