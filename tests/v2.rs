@@ -26,15 +26,40 @@ pub fn t2_test_layer(){
     let layer_fmt = layer.format();
     assert_eq!(layer_fmt.0, 2);
 
-    let input:SVector<f64, 2> = SVector::from_vec(vec![0.0, 0.0]);
-    let output = layer.activate(&input.data.0[0]);
+    let input = vec![0.0, 0.0];
+    let output = layer.activate(input);
     let output:SVector<f64, 3> = SVector::from_vec(output.to_vec());
-    
+
     assert_eq!(output.len(), 3);
     assert_eq!(output.sum(), 0.0);
 
-    let input:SVector<f64, 2> = SVector::from_vec(vec![1.0, 1.0]);
-    let output = layer.activate(&input.data.0[0] );
+    let input = vec![1.0, 1.0];
+    let output = layer.activate(input );
     let output:SVector<f64, 3> = SVector::from_vec(output.to_vec());
     assert_ne!(output.sum(), 0.0);
+}
+
+#[test]
+pub fn projection_test(){
+    let mut layer = DenseLayer::<2, 3>::new();
+    layer.normalize();
+
+    let mut next_layer = DenseLayer::<3, 4>::new();
+    next_layer.normalize();
+
+    layer.project(Box::new(next_layer));
+    let layer_fmt = layer.format();
+    assert_eq!(layer_fmt.0, 2);
+    assert_eq!(layer_fmt.1, 3);
+
+
+    // First layer activation test
+    let input = vec![1.0, 1.0];
+    let output = layer.activate(input);
+    assert_eq!(output, vec![2., 2., 2.]);
+
+    // Second layer activation test
+    let input = vec![1.0, 1.0];
+    let output = layer.chain_activation(input);
+    assert_eq!(output, vec![6., 6., 6., 6.]);
 }
