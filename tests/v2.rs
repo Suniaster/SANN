@@ -40,34 +40,30 @@ pub fn t2_test_layer(){
 }
 
 #[test]
-pub fn projection_test(){
-    let mut layer = DenseLayer::<2, 3>::new();
-    layer.normalize();
+pub fn test_network(){
+    let mut network = ArtificialNetwork::new();
 
-    let mut next_layer = DenseLayer::<3, 4>::new();
-    next_layer.normalize();
+    let mut layer_1 = DenseLayer::<2, 3>::new();
+    layer_1.normalize();
+    network.add_layer(Box::new(layer_1));
 
-    layer.project(Box::new(next_layer));
-    let layer_fmt = layer.format();
-    assert_eq!(layer_fmt.0, 2);
-    assert_eq!(layer_fmt.1, 3);
+    let mut layer_2 = DenseLayer::<3, 4>::new();
+    layer_2.normalize();
+    network.add_layer(Box::new(layer_2));
 
-
-    // First layer activation test
     let input = vec![1.0, 1.0];
-    let output = layer.activate(input);
-    assert_eq!(output, vec![2., 2., 2.]);
-
-    // Second layer activation test
-    let input = vec![1.0, 1.0];
-    let output = layer.chain_activation(input);
+    let output = network.activate(input);
     assert_eq!(output, vec![6., 6., 6., 6.]);
 }
+
 
 #[test]
 #[should_panic]
 pub fn test_error_projection(){
-    let mut layer = DenseLayer::<2, 3>::new();
-    let next_layer = DenseLayer::<4, 3>::new();
-    layer.project(Box::new(next_layer));
+    let layer_1 = DenseLayer::<2, 3>::new();
+    let layer_2 = DenseLayer::<4, 3>::new();
+
+    let mut network = ArtificialNetwork::new();
+    network.add_layer(Box::new(layer_1));
+    network.add_layer(Box::new(layer_2));
 }

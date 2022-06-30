@@ -38,38 +38,13 @@ trait LayerFormat {
 
 pub trait NetLayer{
     fn activate(&self, inputs: Vec<f64>) -> Vec<f64>;
-
-    fn chain_activation(&self, inputs: Vec<f64>) -> Vec<f64> {
-        let activation_result = self.activate(inputs);
-        if let Some(next) = self.get_next_layer() {
-            next.chain_activation(activation_result)
-        } else {
-            activation_result
-        }
-    }
-
-    fn get_next_layer(&self) -> Option<&Box<dyn NetLayer>>;
-    fn project_impl(&mut self, next: Box<dyn NetLayer>);
-    
-    fn project(&mut self, next: Box<dyn NetLayer>) {
-        self.verify_projection(next.format());
-        self.project_impl(next);
-    }
-
-    fn verify_projection(&self, next_format: (usize, usize)) {
-        if self.format().1 != next_format.0 {
-            panic!("Layer {:?} cannot project to layer {:?}", self.format(), next_format);
-        }
-    }
-
     fn format(&self) -> (usize, usize);
 }
 
 pub struct DenseLayer<const IN_FMT: usize, const OUT_FMT: usize> {
     neurons: Vec<Neuron<IN_FMT>>,
     weights_mat: SMatrix<f64, OUT_FMT, IN_FMT>,
-    bias_vec: SVector<f64, OUT_FMT>,
-    next: Option<Box<dyn NetLayer>>,
+    bias_vec: SVector<f64, OUT_FMT>
 }
 
 impl<const IN_FMT:usize, const OUT_FMT:usize> DenseLayer<IN_FMT, OUT_FMT>{
@@ -81,8 +56,7 @@ impl<const IN_FMT:usize, const OUT_FMT:usize> DenseLayer<IN_FMT, OUT_FMT>{
         DenseLayer {
             neurons,
             weights_mat: SMatrix::<f64, OUT_FMT, IN_FMT>::zeros(),
-            bias_vec: SVector::<f64, OUT_FMT>::zeros(),
-            next: None,
+            bias_vec: SVector::<f64, OUT_FMT>::zeros()
         }
     }
 
@@ -117,14 +91,6 @@ impl<const I:usize, const O:usize> NetLayer for DenseLayer<I,O> {
         out.data.0[0].to_vec()
     }
 
-    fn get_next_layer(&self) -> Option<&Box<dyn NetLayer>> {
-        self.next.as_ref()
-    }
-
-    fn project_impl(&mut self, next: Box<dyn NetLayer>) {
-        self.next = Some(next);
-    }
-
     fn format(&self) -> (usize, usize) {
         (I, O)
     }
@@ -133,6 +99,39 @@ impl<const I:usize, const O:usize> NetLayer for DenseLayer<I,O> {
 
 /********** Network *********/
 
-// pub struct ArtificialNetwork {
-//     layers: Vec<Box<dyn NetLayer>>
-// }
+pub struct ArtificialNetwork {
+    layers: Vec<Box<dyn NetLayer>>
+}
+
+impl ArtificialNetwork {
+    pub fn new() -> ArtificialNetwork {
+        ArtificialNetwork {
+            layers: Vec::new(),
+        }
+    }
+
+    pub fn add_layer(&mut self, layer: Box<dyn NetLayer>) -> &mut Self {
+        self.verify_new_layer(&layer);
+        self.layers.push(layer);
+        self
+    }
+
+    
+    pub fn activate(&self, inputs: Vec<f64>) -> Vec<f64> {
+        let mut inputs = inputs;
+        for layer in &self.layers {
+            inputs = layer.activate(inputs);
+        }
+        inputs
+    }
+
+    fn verify_new_layer(&self, new_layer: &Box<dyn NetLayer>){
+        let layer_len = self.layers.len();
+        if layer_len > 0 {
+            let last_layer_format = self.layers[layer_len - 1].format();
+            if last_layer_format.1 != new_layer.format().0 {
+                panic!("Layer {:?} cannot project to layer {:?}", last_layer_format, new_layer.format().0);
+            }
+        }
+    }
+}
