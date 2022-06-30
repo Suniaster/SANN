@@ -1,4 +1,4 @@
-use nalgebra::{SVector, SMatrix};
+use nalgebra::{SVector, SMatrix, DMatrix};
 use rand::Rng;
 use super::activations::{Activation, ActivationType};
 
@@ -40,6 +40,11 @@ trait LayerFormat {
 pub trait NetLayer{
     fn foward(&self, inputs: Vec<f64>) -> Vec<f64>;
     fn format(&self) -> (usize, usize);
+
+    fn get_weights(&self) -> Vec<Vec<f64>>;
+    fn backward_output(&mut self, expected: Vec<f64>) -> Vec<f64>;
+    fn backward(&mut self, weigths: Vec<Vec<f64>>, last_layer_error: Vec<f64>) -> Vec<f64>;
+    fn update_layer(&mut self, l_rate: f64);
 }
 
 pub struct DenseLayer<const IN_FMT: usize, const OUT_FMT: usize> {
@@ -47,7 +52,9 @@ pub struct DenseLayer<const IN_FMT: usize, const OUT_FMT: usize> {
     weights_mat: SMatrix<f64, OUT_FMT, IN_FMT>,
     bias_vec: SVector<f64, OUT_FMT>,
 
-    activation: Activation
+    activation: Activation,
+    last_result: SVector<f64, OUT_FMT>,
+    error: SVector<f64, OUT_FMT>
 }
 
 impl<const IN_FMT:usize, const OUT_FMT:usize> DenseLayer<IN_FMT, OUT_FMT>{
@@ -60,7 +67,10 @@ impl<const IN_FMT:usize, const OUT_FMT:usize> DenseLayer<IN_FMT, OUT_FMT>{
             neurons,
             weights_mat: SMatrix::<f64, OUT_FMT, IN_FMT>::zeros(),
             bias_vec: SVector::<f64, OUT_FMT>::zeros(),
-            activation: Activation::create(ActivationType::Default)
+            activation: Activation::create(ActivationType::Default),
+
+            last_result: SVector::<f64, OUT_FMT>::zeros(),
+            error: SVector::zeros()
         }
     }
 
@@ -98,6 +108,49 @@ impl<const I:usize, const O:usize> NetLayer for DenseLayer<I,O> {
 
     fn format(&self) -> (usize, usize) {
         (I, O)
+    }
+
+    fn get_weights(&self) -> Vec<Vec<f64>> {
+        let mut weights = Vec::new();
+        for n in &self.neurons {
+            weights.push(n.weights.data.0[0].to_vec());
+        }
+        weights
+    }
+
+    fn backward_output(&mut self, expected: Vec<f64>) -> Vec<f64> {
+        let expected_vec =  SVector::from_vec(expected);
+        
+        self.error = expected_vec - self.last_result;
+        self.error = self.error.component_mul(&self.error); // (expected - output)^2
+
+        let derivatives = self.last_result.map(|o| (self.activation.d)(&o));
+        self.error = self.error.component_mul(&derivatives); // (expected - output)^2 * derivative(output)
+
+        return self.error.data.0[0].to_vec();
+    }
+
+    fn backward(&mut self, ll_weigths: Vec<Vec<f64>>, ll_error: Vec<f64>) -> Vec<f64> {
+        let derivatives = self.last_result.map(|o| (self.activation.d)(&o)); 
+        
+        let w_format = (ll_weigths.len(), ll_weigths[0].len());
+        let w_mat:DMatrix<f64> = DMatrix::from_vec(w_format.0, w_format.1, ll_weigths.into_iter().flatten().collect());
+        
+        let ll_error:DMatrix<f64> = DMatrix::from_vec(ll_error.len(), 1, ll_error);
+        let e = w_mat * ll_error;
+
+        self.error = e.component_mul(&derivatives);
+
+        return self.error.data.0[0].to_vec();
+    }
+
+    fn update_layer(&mut self, l_rate: f64) {
+        for (i, n) in self.neurons.iter_mut().enumerate() {
+            for (j, w) in n.weights.iter_mut().enumerate() {
+                *w -= l_rate * self.error[i] * self.last_result[j];
+            }
+            n.bias -= l_rate * self.error[i];
+        }
     }
 }
 
@@ -138,5 +191,18 @@ impl ArtificialNetwork {
                 panic!("Layer {:?} cannot project to layer {:?}", last_layer_format, new_layer.format().0);
             }
         }
+    }
+
+    pub fn backward(&mut self, expected: Vec<f64>) -> Vec<f64> {
+        let size = self.layers.len();
+
+        let mut expected = expected;
+        expected = self.layers[size - 1].backward_output(expected);
+        let mut ll_ws = self.layers[size - 1].get_weights();
+        for (i, layer) in self.layers.iter_mut().rev().enumerate().skip(1) {
+            let ll_ws = self.layers[i+1].get_weights();
+            expected = layer.backward(ll_ws, expected);
+        }
+        expected
     }
 }
