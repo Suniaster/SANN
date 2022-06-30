@@ -63,3 +63,11 @@ pub fn projection_test(){
     let output = layer.chain_activation(input);
     assert_eq!(output, vec![6., 6., 6., 6.]);
 }
+
+#[test]
+#[should_panic]
+pub fn test_error_projection(){
+    let mut layer = DenseLayer::<2, 3>::new();
+    let next_layer = DenseLayer::<4, 3>::new();
+    layer.project(Box::new(next_layer));
+}

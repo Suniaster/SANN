@@ -1,6 +1,4 @@
-#![feature(const_generics_defaults)]
-
-use nalgebra::{SVector, SMatrix, DVector, Matrix, ArrayStorage, Const, DMatrix};
+use nalgebra::{SVector, SMatrix};
 use rand::Rng;
 
 pub struct Neuron<const D: usize>{
@@ -40,8 +38,30 @@ trait LayerFormat {
 
 pub trait NetLayer{
     fn activate(&self, inputs: Vec<f64>) -> Vec<f64>;
-    fn chain_activation(&self, inputs: Vec<f64>) -> Vec<f64>;
-    fn project(&mut self, next: Box<dyn NetLayer>);
+
+    fn chain_activation(&self, inputs: Vec<f64>) -> Vec<f64> {
+        let activation_result = self.activate(inputs);
+        if let Some(next) = self.get_next_layer() {
+            next.chain_activation(activation_result)
+        } else {
+            activation_result
+        }
+    }
+
+    fn get_next_layer(&self) -> Option<&Box<dyn NetLayer>>;
+    fn project_impl(&mut self, next: Box<dyn NetLayer>);
+    
+    fn project(&mut self, next: Box<dyn NetLayer>) {
+        self.verify_projection(next.format());
+        self.project_impl(next);
+    }
+
+    fn verify_projection(&self, next_format: (usize, usize)) {
+        if self.format().1 != next_format.0 {
+            panic!("Layer {:?} cannot project to layer {:?}", self.format(), next_format);
+        }
+    }
+
     fn format(&self) -> (usize, usize);
 }
 
@@ -97,16 +117,11 @@ impl<const I:usize, const O:usize> NetLayer for DenseLayer<I,O> {
         out.data.0[0].to_vec()
     }
 
-    fn chain_activation(&self, inputs: Vec<f64>) -> Vec<f64> {
-        let activation_result = self.activate(inputs);
-        if let Some(ref next) = self.next {
-            next.chain_activation(activation_result)
-        } else {
-            activation_result
-        }
+    fn get_next_layer(&self) -> Option<&Box<dyn NetLayer>> {
+        self.next.as_ref()
     }
 
-    fn project(&mut self, next: Box<dyn NetLayer>) {
+    fn project_impl(&mut self, next: Box<dyn NetLayer>) {
         self.next = Some(next);
     }
 
