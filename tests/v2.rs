@@ -27,11 +27,14 @@ pub fn t2_test_layer(){
     assert_eq!(layer_fmt.0, 2);
 
     let input:SVector<f64, 2> = SVector::from_vec(vec![0.0, 0.0]);
-    let output = layer.activate(&input);
+    let output = layer.activate(&input.data.0[0]);
+    let output:SVector<f64, 3> = SVector::from_vec(output.to_vec());
+    
     assert_eq!(output.len(), 3);
     assert_eq!(output.sum(), 0.0);
 
     let input:SVector<f64, 2> = SVector::from_vec(vec![1.0, 1.0]);
-    let output = layer.activate(&input);
+    let output = layer.activate(&input.data.0[0] );
+    let output:SVector<f64, 3> = SVector::from_vec(output.to_vec());
     assert_ne!(output.sum(), 0.0);
 }

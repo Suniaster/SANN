@@ -34,15 +34,14 @@ trait LayerFormat {
     const F: usize;
 }  
 
-pub trait NetLayer{
-    fn activate(&self, inputs: &DMatrix<f64>) -> DMatrix<f64>;
+pub trait NetLayer<const I: usize, const O:usize>{
+    fn activate(&self, inputs: &[f64;I]) -> [f64; O];
 }
 
 pub struct DenseLayer<const IN_FMT: usize, const OUT_FMT: usize> {
     neurons: Vec<Neuron<IN_FMT>>,
     weights_mat: SMatrix<f64, OUT_FMT, IN_FMT>,
     bias_vec: SVector<f64, OUT_FMT>,
-    last_activation: SVector<f64, OUT_FMT>,
 }
 
 impl<const IN_FMT:usize, const OUT_FMT:usize> DenseLayer<IN_FMT, OUT_FMT>{
@@ -54,8 +53,7 @@ impl<const IN_FMT:usize, const OUT_FMT:usize> DenseLayer<IN_FMT, OUT_FMT>{
         DenseLayer {
             neurons,
             weights_mat: SMatrix::<f64, OUT_FMT, IN_FMT>::zeros(),
-            bias_vec: SVector::<f64, OUT_FMT>::zeros(),
-            last_activation: SVector::zeros(),
+            bias_vec: SVector::<f64, OUT_FMT>::zeros()
         }
     }
 
@@ -79,15 +77,17 @@ impl<const IN_FMT:usize, const OUT_FMT:usize> DenseLayer<IN_FMT, OUT_FMT>{
     }
 }
 
-impl<const I:usize, const O:usize> NetLayer for DenseLayer<I,O> {
-    fn activate(&self, inputs: &DMatrix<f64>) -> DMatrix<f64> {
-        let out = self.weights_mat * inputs + self.bias_vec;
+impl<const I:usize, const O:usize> NetLayer<I, O> for DenseLayer<I,O> {
+    fn activate(&self, inputs: &[f64; I]) -> [f64; O] {
+        let input_vec = SVector::from_vec(inputs.to_vec());
+        let out = self.weights_mat * input_vec + self.bias_vec;
+        out.data.0[0]
     }
 }
 
 
 /********** Network *********/
 
-pub struct ArtificialNetwork {
-    layers: Vec<Box<dyn NetLayer>>
-}
+// pub struct ArtificialNetwork {
+//     layers: Vec<Box<dyn NetLayer>>
+// }
