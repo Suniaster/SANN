@@ -53,13 +53,6 @@ pub fn test_time(){
     ann.add_layer(Box::new(DenseLayer::new(50, 2)));
     ann.add_layer(Box::new(DenseLayer::new(2, 2)));
 
-    ann.set_activations(&vec![
-        ActivationType::Linear,
-        ActivationType::Sigmoid,
-        ActivationType::Sigmoid,
-        ActivationType::Sigmoid,
-    ]);
-
     let input = Array1::from_vec(vec![1.0, 0.0]);
 
     for _ in 0..1_000_000 {
