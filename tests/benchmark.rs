@@ -19,7 +19,7 @@ fn activate_million_times() {
     ]);
 
     let input = &[1.0, 0.0];
-    for _ in 0..50_000 {
+    for _ in 0..1_000_000 {
         xor_net.activate(input);
     }
 }
