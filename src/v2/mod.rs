@@ -42,9 +42,13 @@ pub trait NetLayer{
     fn format(&self) -> (usize, usize);
 
     fn get_weights(&self) -> Vec<Vec<f64>>;
+    fn get_errors(&self) -> Vec<f64>;
+    fn get_last_result(&self) -> Vec<f64>;
+
+    fn foward_mut(&mut self, inputs: Vec<f64>) -> Vec<f64>;
     fn backward_output(&mut self, expected: Vec<f64>) -> Vec<f64>;
-    fn backward(&mut self, weigths: Vec<Vec<f64>>, last_layer_error: Vec<f64>) -> Vec<f64>;
-    fn update_layer(&mut self, l_rate: f64);
+    fn backward(&mut self, nl_ws: Vec<Vec<f64>>, nl_deltas: Vec<f64>) -> Vec<f64>;
+    fn update_layer(&mut self, pl_result: Vec<f64>, l_rate: f64);
 }
 
 pub struct DenseLayer<const IN_FMT: usize, const OUT_FMT: usize> {
@@ -72,6 +76,10 @@ impl<const IN_FMT:usize, const OUT_FMT:usize> DenseLayer<IN_FMT, OUT_FMT>{
             last_result: SVector::<f64, OUT_FMT>::zeros(),
             error: SVector::zeros()
         }
+    }
+
+    pub fn set_activation(&mut self, activation: ActivationType) {
+        self.activation = Activation::create(activation);
     }
 
     pub fn randomize(&mut self) {
@@ -106,6 +114,12 @@ impl<const I:usize, const O:usize> NetLayer for DenseLayer<I,O> {
         out.iter().map(|o| (self.activation.f)(o)).collect()
     }
 
+    fn foward_mut(&mut self, inputs: Vec<f64>) -> Vec<f64> {
+        let res = self.foward(inputs);
+        self.last_result = SVector::from_vec(res);
+        self.last_result.data.0[0].to_vec()
+    }
+
     fn format(&self) -> (usize, usize) {
         (I, O)
     }
@@ -116,6 +130,10 @@ impl<const I:usize, const O:usize> NetLayer for DenseLayer<I,O> {
             weights.push(n.weights.data.0[0].to_vec());
         }
         weights
+    }
+
+    fn get_last_result(&self) -> Vec<f64> {
+        self.last_result.data.0[0].to_vec()
     }
 
     fn backward_output(&mut self, expected: Vec<f64>) -> Vec<f64> {
@@ -130,27 +148,31 @@ impl<const I:usize, const O:usize> NetLayer for DenseLayer<I,O> {
         return self.error.data.0[0].to_vec();
     }
 
-    fn backward(&mut self, ll_weigths: Vec<Vec<f64>>, ll_error: Vec<f64>) -> Vec<f64> {
+    fn backward(&mut self, nl_ws: Vec<Vec<f64>>, nl_deltas: Vec<f64>) -> Vec<f64> {
         let derivatives = self.last_result.map(|o| (self.activation.d)(&o)); 
         
-        let w_format = (ll_weigths.len(), ll_weigths[0].len());
-        let w_mat:DMatrix<f64> = DMatrix::from_vec(w_format.0, w_format.1, ll_weigths.into_iter().flatten().collect());
+        let w_format = (nl_ws.len(), nl_ws[0].len());
+        let w_mat:DMatrix<f64> = DMatrix::from_vec(w_format.0, w_format.1, nl_ws.into_iter().flatten().collect());
         
-        let ll_error:DMatrix<f64> = DMatrix::from_vec(ll_error.len(), 1, ll_error);
-        let e = w_mat * ll_error;
+        let nl_deltas:DMatrix<f64> = DMatrix::from_vec(nl_deltas.len(), 1, nl_deltas);
 
+        let e = w_mat.transpose() * nl_deltas;
         self.error = e.component_mul(&derivatives);
-
+        
         return self.error.data.0[0].to_vec();
     }
 
-    fn update_layer(&mut self, l_rate: f64) {
-        for (i, n) in self.neurons.iter_mut().enumerate() {
-            for (j, w) in n.weights.iter_mut().enumerate() {
-                *w -= l_rate * self.error[i] * self.last_result[j];
+    fn update_layer(&mut self, pl_result: Vec<f64>, l_rate: f64) {
+        for (i, n) in self.neurons.iter().enumerate() {
+            for (j, _) in n.weights.iter().enumerate() {
+                self.weights_mat[(i,j)] -= l_rate * self.error[i] * pl_result[j];
             }
-            n.bias -= l_rate * self.error[i];
+            self.bias_vec[i] -= l_rate * self.error[i];
         }
+    }
+
+    fn get_errors(&self) -> Vec<f64> {
+        self.error.data.0[0].to_vec()
     }
 }
 
@@ -183,6 +205,27 @@ impl ArtificialNetwork {
         inputs
     }
 
+    pub fn train(&mut self, inputs: Vec<Vec<f64>>, expected: Vec<Vec<f64>>, l_rate: f64, epochs: usize) -> (f64, f64) {
+        let loss1 = self.learn(inputs[0].clone(), expected[0].clone(), l_rate);
+        let mut loss2 = 0.;
+        let train_data_size = inputs.len();
+        for i in 0..epochs {
+            
+            loss2 = self.learn(inputs[i % train_data_size].clone(), expected[i % train_data_size].clone(), l_rate);
+            print!("\rEpoch: {} \t\t| loss: {:?}", i, loss2);
+        }
+        println!();
+        return (loss1, loss2);
+    }
+
+    fn foward_mut(&mut self, inputs: Vec<f64>) -> Vec<f64> {
+        let mut inputs = inputs;
+        for layer in &mut self.layers {
+            inputs = layer.foward_mut(inputs);
+        }
+        inputs
+    }
+
     fn verify_new_layer(&self, new_layer: &Box<dyn NetLayer>){
         let layer_len = self.layers.len();
         if layer_len > 0 {
@@ -193,16 +236,44 @@ impl ArtificialNetwork {
         }
     }
 
-    pub fn backward(&mut self, expected: Vec<f64>) -> Vec<f64> {
+    fn backward(&mut self, expected: Vec<f64>) {
         let size = self.layers.len();
 
         let mut expected = expected;
         expected = self.layers[size - 1].backward_output(expected);
+
         let mut ll_ws = self.layers[size - 1].get_weights();
-        for (i, layer) in self.layers.iter_mut().rev().enumerate().skip(1) {
-            let ll_ws = self.layers[i+1].get_weights();
-            expected = layer.backward(ll_ws, expected);
+
+        for i in (0..self.layers.len()-1).rev() {
+            expected = self.layers[i].backward(ll_ws, expected);
+            ll_ws = self.layers[i].get_weights();
         }
-        expected
+    }
+
+    fn learn(&mut self, inputs:Vec<f64>, expected: Vec<f64>, l_rate: f64) -> f64{
+        let inp_clone = inputs.clone();
+        let exp_clone = expected.clone();
+
+        self.foward_mut(inputs);
+        self.backward(expected);
+        
+        for i in &mut (1..self.layers.len()) {
+            let previous_layer_result = self.layers[i-1].get_last_result();
+            self.layers[i].update_layer(previous_layer_result, l_rate);
+        }
+    
+        return self.get_loss(inp_clone, exp_clone);
+    }
+
+    fn get_loss(&self, input: Vec<f64>, expected: Vec<f64>) -> f64 {
+        let output_format = self.layers[self.layers.len() - 1].format();
+        let out = self.foward(input);
+
+        let expct = DMatrix::from_vec(output_format.1, 1, expected);
+        let out = DMatrix::from_vec(output_format.1, 1, out);
+        
+        let sub = out - expct;  
+        let loss = sub.component_mul(&sub); // (expected - output)^2
+        return loss.sum();
     }
 }

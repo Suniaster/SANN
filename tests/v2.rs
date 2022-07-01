@@ -1,4 +1,4 @@
-use sann::v2::*;
+use sann::{v2::*, activations::ActivationType};
 use nalgebra::SVector;
 
 #[test]
@@ -66,4 +66,51 @@ pub fn test_error_projection(){
     let mut network = ArtificialNetwork::new();
     network.add_layer(Box::new(layer_1));
     network.add_layer(Box::new(layer_2));
+}
+
+#[test]
+pub fn test_backward(){
+    let mut network = ArtificialNetwork::new();
+
+    let mut layer_1 = DenseLayer::<2, 3>::new();
+    layer_1.normalize();
+    network.add_layer(Box::new(layer_1));
+
+    let mut layer_2 = DenseLayer::<3, 3>::new();
+    layer_2.randomize();
+    layer_2.set_activation(ActivationType::Sigmoid);
+    network.add_layer(Box::new(layer_2));
+
+    let mut layer_2 = DenseLayer::<3, 2>::new();
+    layer_2.randomize();
+    layer_2.set_activation(ActivationType::Sigmoid);
+    network.add_layer(Box::new(layer_2));
+
+    let mut layer_3 = DenseLayer::<2, 1>::new();
+    layer_3.randomize();
+    layer_3.set_activation(ActivationType::Sigmoid);
+    network.add_layer(Box::new(layer_3));
+
+    let inputs = vec![
+        vec![1.0, 1.0],
+        vec![1.0, 0.0],
+        vec![0.0, 1.0],
+        vec![0.0, 0.0]
+    ];
+    let expected = vec![
+        vec![1.0],
+        vec![0.0],
+        vec![0.0],
+        vec![1.0]
+    ];
+    
+    let (loss1, loss2) = network.train(
+        inputs,
+        expected,
+        0.1,
+        100_000,
+    );
+
+    assert!(loss1 > loss2);    
+
 }
