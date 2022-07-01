@@ -32,7 +32,7 @@ macro_rules! create_neuron_mapper {
 
 impl Layer {
     pub fn new(size: u16) -> Layer {
-        return Layer::new_activation(size, ActivationType::ReLu);
+        return Layer::new_activation(size, ActivationType::Default);
     }
 
     pub fn new_activation(size: u16, _type: ActivationType) -> Layer {

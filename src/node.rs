@@ -24,7 +24,7 @@ impl Neuron {
 
     pub fn new_activation(_type: ActivationType) -> Container<Neuron> {
         return new_container(Neuron {
-            bias: (rand::random::<f64>() * 2.0) - 1.0,
+            bias: 0.,//(rand::random::<f64>() * 2.0) - 1.0,
             output_val: 0.0,
             activation: Activation::create(_type),
             inputs: vec![],
@@ -35,7 +35,7 @@ impl Neuron {
 
     pub fn project(src: &Container<Neuron>, dest: &Container<Neuron>) {
         let new_axon = new_container(Axon {
-            weight: (rand::random::<f64>() * 2.0) - 1.0,
+            weight: 1. ,//(rand::random::<f64>() * 2.0) - 1.0,
             src: src.clone(),
             dest: dest.clone()
         });
