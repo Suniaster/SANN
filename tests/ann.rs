@@ -1,4 +1,4 @@
-use sann::*;
+use sann::{*, activations::ActivationType};
 use ndarray::Array1;
 
 
@@ -39,4 +39,45 @@ pub fn learn_test(){
     let target = Array1::from_vec(vec![1.0]);
 
     ann.learn(&input, &target, 0.1);
+}
+
+#[test]
+pub fn train_test(){
+    let mut ann = Ann::new();
+    //[2, 3, 3, 1]
+    ann.add_layer(Box::new(DenseLayer::new(2, 2)));
+    ann.add_layer(Box::new(DenseLayer::new(2, 2)));
+    ann.add_layer(Box::new(DenseLayer::new(2, 2)));
+    ann.add_layer(Box::new(DenseLayer::new(2, 1)));
+    ann.randomize();
+
+    ann.set_activations(&[
+        ActivationType::Linear,
+        ActivationType::Sigmoid,
+        ActivationType::Sigmoid,
+        ActivationType::Linear,
+    ]);
+
+    let input =  vec![
+        Array1::from_vec(vec![1.0, 1.0]),
+        Array1::from_vec(vec![1.0, 0.0]),
+        Array1::from_vec(vec![0.0, 1.0]),
+        Array1::from_vec(vec![0.0, 0.0]),
+    ];
+
+    let expected = vec![
+        Array1::from_vec(vec![0.0]),
+        Array1::from_vec(vec![1.0]),
+        Array1::from_vec(vec![1.0]),
+        Array1::from_vec(vec![0.0]),
+    ];
+
+    let result = ann.activate(&input[0]);
+    println!("Result {:?}", result);
+    let loss = ann.get_loss_batch(&input, &expected);
+    println!("Loss before training {:?}", loss);
+
+
+    let loss = ann.train(&input, &expected, 10_000,  0.1);
+    println!("Loss after training: {}", loss);
 }
