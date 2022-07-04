@@ -16,7 +16,6 @@ categories = ["accessibility"]
 vectors = "0.3.0"
 ndarray = { version = "0.15.0", features = ["serde"] }
 rand = "0.8.0"
-time-test = "*"
 rustc-serialize = "0.3"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
@@ -27,6 +26,14 @@ serde = { version = "1.0", features = ["derive"] }
 # [lib]
 # name = "sann"
 # path = "src/lib.rs"
+
+[dev-dependencies]
+criterion = "0.3"
+time-test = "*"
+
+[[bench]]
+name = "v1"
+harness = false
 
 [profile.test] 
 opt-level = 3

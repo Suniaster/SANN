@@ -106,7 +106,7 @@ pub struct DenseLayer {
 
 impl DenseLayer {
     pub fn new(input_size: usize, output_size: usize) -> DenseLayer {
-        let weights = Array2::ones((input_size, output_size));
+        let weights = Array2::ones((output_size, input_size));
         let biases = Array1::zeros(output_size);
         return DenseLayer {
             weights,
@@ -118,7 +118,7 @@ impl DenseLayer {
 
 impl NetLayer for DenseLayer {
     fn activate(&self, input: &Array1<f64>) -> Array1<f64> {
-        let output = input.dot(&self.weights) + &self.biases;
+        let output = self.weights.dot(input) + &self.biases;
         return output.map(self.activation.f);
     }
 
