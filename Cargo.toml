@@ -35,5 +35,5 @@ time-test = "*"
 name = "v1"
 harness = false
 
-[profile.test] 
-opt-level = 3
+# [profile.test] 
+# opt-level = 3
