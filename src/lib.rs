@@ -190,7 +190,7 @@ impl NetLayer for DenseLayer {
 
     fn randomize_params(&mut self) {
         let mut rng = rand::thread_rng();
-        self.weights.mapv_inplace(|_| rng.gen::<f64>() * 0.5 + 0.5);
-        self.biases.mapv_inplace(|_| rng.gen::<f64>() * 0.5 + 0.5);
+        self.weights.mapv_inplace(|_| rng.gen::<f64>() * 2. - 1.);
+        self.biases.mapv_inplace(|_| rng.gen::<f64>() * 2. - 1.);
     }
 }
