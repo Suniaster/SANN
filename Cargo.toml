@@ -35,5 +35,9 @@ time-test = "*"
 name = "v1"
 harness = false
 
+[[bench]]
+name = "train"
+harness = false
+
 # [profile.test] 
 # opt-level = 3

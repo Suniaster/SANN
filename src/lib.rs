@@ -96,6 +96,15 @@ impl Ann {
         let errors_squared = (&pos_learn_output - expected) * (pos_learn_output - expected);
         return errors_squared.sum();
     }
+
+    pub fn train(&mut self, inputs: &Vec<Array1<f64>>, expecteds: &Vec<Array1<f64>>, iterations:usize, learning_rate: f64) -> f64 {
+        for _ in 0..iterations {
+            for (i, input) in inputs.iter().enumerate() {
+                self.learn(input, &expecteds[i], learning_rate);
+            }
+        }
+        return self.learn(&inputs[0], &expecteds[0], learning_rate);
+    }
 }
 
 pub struct DenseLayer {
