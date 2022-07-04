@@ -1,6 +1,5 @@
 use super::activations::*;
 use super::helper::*;
-use rand;
 
 pub struct Axon {
     pub weight: f64,

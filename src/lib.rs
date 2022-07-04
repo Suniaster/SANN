@@ -131,16 +131,16 @@ impl NetLayer for DenseLayer {
 
     fn get_backpropag_error(&self, this_layer_out: &Array1<f64>, next_layer_deltas: &Array1<f64>, next_layer_ws: &Array2<f64>) -> Array1<f64> {
         let derivatives = this_layer_out.mapv(|x| (self.activation.d)(&x));
-        let errors = next_layer_ws.dot(next_layer_deltas) * derivatives;
+        let errors = next_layer_ws.t().dot(next_layer_deltas) * derivatives;
         return errors;
     }
 
     fn update_params(&mut self, deltas: &Array1<f64>, previous_layer_output: &Array1<f64>, learning_rate: f64) {
-        for i in 0..self.weights.ncols() {
+        for i in 0..self.weights.nrows() {
             let j_l_w = previous_layer_output * deltas[i];
 
-            for j in 0..self.weights.nrows() {
-                self.weights[(j, i)] -= j_l_w[j] * learning_rate;
+            for j in 0..self.weights.ncols() {
+                self.weights[(i, j)] -= j_l_w[j] * learning_rate;
             }
         }
 

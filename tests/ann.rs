@@ -27,3 +27,16 @@ pub fn creation_time_test(){
     let input = Array1::from_vec(vec![1.0, 0.0]);
     println!("Result {:?}", ann.activate(&input));
 }
+
+#[test]
+pub fn learn_test(){
+    let mut ann = Ann::new();
+    //[2, 3, 3, 1]
+    ann.add_layer(Box::new(DenseLayer::new(2, 3)));
+    ann.add_layer(Box::new(DenseLayer::new(3, 3)));
+    ann.add_layer(Box::new(DenseLayer::new(3, 1)));
+    let input = Array1::from_vec(vec![1.0, 1.0]);
+    let target = Array1::from_vec(vec![1.0]);
+
+    ann.learn(&input, &target, 0.1);
+}
