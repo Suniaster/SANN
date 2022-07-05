@@ -1,9 +1,9 @@
-use ndarray::{Array1, Array2};
+use ndarray::{Array1};
 use super::activations;
 use super::layer::NetLayer;
 
 pub struct Ann {
-    layers: Vec<Box<dyn NetLayer>>,
+    pub layers: Vec<Box<dyn NetLayer>>,
     layers_output: Vec<Array1<f64>>,
     layers_deltas: Vec<Array1<f64>>,
 }

@@ -3,12 +3,6 @@ use super::{activations};
 
 pub mod dense;
 
-pub enum LayerType {
-    Dense,
-    Input,
-    Output
-}
-
 pub trait NetLayer {
     fn activate(&self, input: &Array1<f64>) -> Array1<f64>;
 
@@ -24,8 +18,19 @@ pub trait NetLayer {
     fn randomize_params(&mut self){}
     
     fn get_weights(&self) -> &Array2<f64>;
+    fn set_weights(&mut self, weights: Array2<f64>);
+
+    fn get_biases(&self) -> &Array1<f64>;
+    fn set_biases(&mut self, biases: Array1<f64>);
+
     fn get_format(&self) -> (usize, usize);
-    
+
     fn set_activation(&mut self, _type: activations::ActivationType);
     fn get_activation(&self) -> &activations::Activation;
+
+    fn get_type_name(&self) -> String;
+}
+
+pub trait NetLayerSerialize {
+    fn from_format(format: (usize, usize)) -> Box<dyn NetLayer>;
 }

@@ -1,5 +1,5 @@
 use ndarray::{Array1, Array2};
-use super::{activations};
+use super::{activations, NetLayerSerialize};
 
 use super::NetLayer;
 use rand;
@@ -53,6 +53,10 @@ impl NetLayer for DenseLayer {
         return &self.weights;
     }
 
+    fn set_weights(&mut self, weights: Array2<f64>) {
+        self.weights = weights;
+    }
+
     fn get_format(&self) -> (usize, usize) {
         return (self.weights.shape()[1], self.weights.shape()[0]);
     }
@@ -61,5 +65,23 @@ impl NetLayer for DenseLayer {
         let mut rng = rand::thread_rng();
         self.weights.mapv_inplace(|_| rng.gen::<f64>() * 2. - 1.);
         self.biases.mapv_inplace(|_| rng.gen::<f64>() * 2. - 1.);
+    }
+
+    fn get_biases(&self) -> &Array1<f64> {
+        return &self.biases;
+    }
+
+    fn set_biases(&mut self, biases: Array1<f64>) {
+        self.biases = biases;
+    }
+
+    fn get_type_name(&self) -> String {
+        return String::from("Dense");
+    }
+}
+
+impl NetLayerSerialize for DenseLayer {
+    fn from_format(format: (usize, usize)) -> Box<dyn NetLayer> {
+        return Box::new(DenseLayer::new(format.1, format.0));
     }
 }
