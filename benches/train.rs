@@ -1,5 +1,7 @@
-use sann::{network, activations::ActivationType};
-use sann::*;
+use sann::network::Ann;
+use sann::layer::dense::DenseLayer;
+
+use sann::activations::ActivationType;
 use ndarray::Array1;
 
 use criterion::{criterion_group, criterion_main, Criterion};
@@ -7,30 +9,6 @@ use criterion::{criterion_group, criterion_main, Criterion};
 
 fn performance_compare(c: &mut Criterion){
     let mut group = c.benchmark_group("Training");
-    let mut xor_net = network::Network::new(&[2, 3, 4, 2, 1]);
-    let input = vec![
-        vec![1.0, 1.0],
-        vec![1.0, 0.0],
-        vec![0.0, 1.0],
-        vec![0.0, 0.0],
-    ];
-
-    let expected = vec![
-        vec![1.0],
-        vec![0.0],
-        vec![0.0],
-        vec![1.0],
-    ];
-    
-    let mut loss1 = 0.;
-    group.bench_function("old",  |b| 
-        b.iter(|| 
-            loss1 = xor_net.train(&input, &expected, 0.1, 100)
-        )
-    );
-
-
-
     let mut ann = Ann::new();
     //[2, 3, 100, 50, 2, 2]
     ann.add_layer(Box::new(DenseLayer::new(2, 3)));
@@ -65,7 +43,7 @@ fn performance_compare(c: &mut Criterion){
         )
     );
 
-    println!("Loss old: {:?}, Loss new: {:?}", loss1, loss2);
+    println!("LOSS: {:?}", loss2);
     group.finish();
 }
 criterion_group!(benches, performance_compare);

@@ -1,6 +1,8 @@
-use sann::{*, activations::ActivationType};
-use ndarray::Array1;
+use sann::network::Ann;
+use sann::layer::dense::DenseLayer;
 
+use sann::activations::ActivationType;
+use ndarray::Array1;
 
 #[test]
 pub fn test_net(){
@@ -72,14 +74,12 @@ pub fn train_test(){
         Array1::from_vec(vec![0.0]),
     ];
 
-    let result = ann.activate(&input[0]);
-    println!("Result {:?}", result);
     let loss = ann.get_loss_batch(&input, &expected);
     println!("Loss before training {:?}", loss);
 
 
     let loss = ann.train(&input, &expected, 10_000,  0.1);
-    println!("Loss after training: {}", loss);
+    println!("Loss after training: {:?}", loss);
 
     // Result after training:
     let result = ann.activate(&input[0]);
