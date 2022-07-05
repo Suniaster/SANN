@@ -80,4 +80,14 @@ pub fn train_test(){
 
     let loss = ann.train(&input, &expected, 10_000,  0.1);
     println!("Loss after training: {}", loss);
+
+    // Result after training:
+    let result = ann.activate(&input[0]);
+    println!("Result 0: {:?}", result);
+    let result = ann.activate(&input[1]);
+    println!("Result 1: {:?}", result);
+    let result = ann.activate(&input[2]);
+    println!("Result 2: {:?}", result);
+    let result = ann.activate(&input[3]);
+    println!("Result 3: {:?}", result);
 }

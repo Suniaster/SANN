@@ -17,7 +17,7 @@ pub trait NetLayer {
 
     fn get_backpropag_error(&self, this_layer_out: &Array1<f64>, next_layer_deltas: &Array1<f64>, next_layer_ws: &Array2<f64>) -> Array1<f64>;
     
-    fn update_params(&mut self, deltas: &Array1<f64>, previous_layer_output: &Array1<f64>, learning_rate: f64);
+    fn update_params(&mut self, this_layer_deltas: &Array1<f64>, previous_layer_output: &Array1<f64>, learning_rate: f64);
     fn set_activation(&mut self, _type: activations::ActivationType);
 
     fn randomize_params(&mut self);
@@ -90,14 +90,13 @@ impl Ann {
         }
     }
 
-    fn last_layer_loss(&self, expected: &Array1<f64>) -> Array1<f64> {
-        let sub = &self.layers_output[self.layers_output.len()-1] - expected;
-        // let sqrd = sub.map(|x| x * x);
-        return sub;
+    fn last_layer_error(&self, expected: &Array1<f64>) -> Array1<f64> {
+        // Considering the last function to have linear activation.
+        return &self.layers_output[self.layers_output.len()-1] - expected;
     }
 
     fn update_deltas(&mut self, expected: &Array1<f64>) {
-        let mut deltas = self.last_layer_loss(expected);
+        let mut deltas = self.last_layer_error(expected);
         self.layers_deltas[self.layers.len() -1] = deltas.clone();
 
         for (i, layer) in self.layers.iter().enumerate().rev().skip(1) {
@@ -164,16 +163,16 @@ impl NetLayer for DenseLayer {
         return errors;
     }
 
-    fn update_params(&mut self, deltas: &Array1<f64>, previous_layer_output: &Array1<f64>, learning_rate: f64) {
+    fn update_params(&mut self, this_layer_deltas: &Array1<f64>, previous_layer_output: &Array1<f64>, learning_rate: f64) {
         for i in 0..self.weights.nrows() {
-            let j_l_w = previous_layer_output * deltas[i];
+            let j_l_w = previous_layer_output * this_layer_deltas[i];
 
             for j in 0..self.weights.ncols() {
                 self.weights[(i, j)] -= j_l_w[j] * learning_rate;
             }
         }
 
-        self.biases -= &(deltas * learning_rate);
+        self.biases -= &(this_layer_deltas * learning_rate);
     }
 
     fn set_activation(&mut self, _type: activations::ActivationType) {

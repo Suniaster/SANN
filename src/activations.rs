@@ -11,7 +11,7 @@ pub fn sigmoid(x: &f64) -> f64 {
 }
 
 pub fn sigmoid_derivate(x: &f64) -> f64 {
-    let y = sigmoid(x);
+    let y = *x;
     return y * (1.0 - y);
 }
 
