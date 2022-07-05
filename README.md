@@ -17,35 +17,63 @@ Create dense network with format and activations:
 use sann::network;
 use sann::activations::*;
 
-let mut net = network::Network::new(&[2, 3, 5, 2, 1]);
-net.format(&[
-    ActivationType::Linear,
-    ActivationType::ReLu,
-    ActivationType::Sigmoid,
-    ActivationType::ReLu,
-    ActivationType::Sigmoid,
-]);
-
+let mut ann = Ann::new(2);
+//[2, 3, 3, 1]
+ann.push::<DenseLayer>(2)
+    .set_activation(ActivationType::Linear);
+ann.push::<DenseLayer>(30)
+    .set_activation(ActivationType::Relu);
+ann.push::<DenseLayer>(20)
+    .set_activation(ActivationType::Sigmoid);
+ann.push::<DenseLayer>(3)
+    .set_activation(ActivationType::Linear);
 ```
 
 Train a XOR network:
 
 ```rust
-let mut xor_net = # ... initialize network
-let input = vec![
-    vec![0.0, 0.0],
-    vec![0.0, 1.0],
-    vec![1.0, 0.0],
-    vec![1.0, 1.0],
+let mut ann = Ann::new(2);
+//[2, 3, 3, 1]
+ann.push::<DenseLayer>(2)
+    .set_activation(ActivationType::Linear);
+ann.push::<DenseLayer>(2)
+    .set_activation(ActivationType::Sigmoid);
+ann.push::<DenseLayer>(2)
+    .set_activation(ActivationType::Sigmoid);
+ann.push::<DenseLayer>(1)
+    .set_activation(ActivationType::Linear);
+ann.randomize();
+
+let input =  vec![
+    Array1::from_vec(vec![1.0, 1.0]),
+    Array1::from_vec(vec![1.0, 0.0]),
+    Array1::from_vec(vec![0.0, 1.0]),
+    Array1::from_vec(vec![0.0, 0.0]),
 ];
-let expected = vec![vec![0.0], vec![1.0], vec![1.0], vec![0.0]];
 
-xor_net.train(&input, &expected, 0.15, 100_000);
+let expected = vec![
+    Array1::from_vec(vec![0.0]),
+    Array1::from_vec(vec![1.0]),
+    Array1::from_vec(vec![1.0]),
+    Array1::from_vec(vec![0.0]),
+];
 
-println!("Result should be almost 0: {:?}", xor_net.activate(&input[0]));
-println!("Result should be almost 1: {:?}", xor_net.activate(&input[1]));
-println!("Result should be almost 1: {:?}", xor_net.activate(&input[2]));
-println!("Result should be almost 0: {:?}", xor_net.activate(&input[3]));
+let loss = ann.get_loss_batch(&input, &expected);
+println!("Loss before training {:?}", loss);
+
+
+let loss = ann.train(&input, &expected, 100_000,  0.1);
+println!("Loss after training: {:?}", loss);
+
+// Result after training:
+let result = ann.activate(&input[0]);
+println!("Result 0: {:?}", result);
+let result = ann.activate(&input[1]);
+println!("Result 1: {:?}", result);
+let result = ann.activate(&input[2]);
+println!("Result 2: {:?}", result);
+let result = ann.activate(&input[3]);
+println!("Result 3: {:?}", result);
 ```
 
 Save and load network params:
