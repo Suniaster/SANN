@@ -38,7 +38,6 @@ impl Network {
     ) -> f64{
         let mut loss = 0.0;
         for _iteration in 0..iterations {
-            // print!("\rIteration {} ######", iteration + 1);
             loss = 0.0;
             for i in 0..input.len() {
                 self.activate_with(&input[i]);
@@ -46,11 +45,9 @@ impl Network {
                 self.learn(learning_rate);
             }
             loss = loss / input.len() as f64;
-            // print!(" Loss: {} ", loss);
         }
         self.update();
         return loss;
-        // println!();
     }
 
     pub fn activate(&mut self, input: &[f64]) -> Vec<f64> {

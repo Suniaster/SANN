@@ -15,15 +15,28 @@ use ndarray::{Array1, Array2};
 pub trait NetLayer {
     fn activate(&self, input: &Array1<f64>) -> Array1<f64>;
 
-    fn get_backpropag_error(&self, this_layer_out: &Array1<f64>, next_layer_deltas: &Array1<f64>, next_layer_ws: &Array2<f64>) -> Array1<f64>;
-    
+    fn get_backpropag_error(&self, this_layer_out: &Array1<f64>, next_layer_deltas: &Array1<f64>, next_layer_ws: &Array2<f64>) -> Array1<f64> {
+        let derivative_f = self.get_activation().d;
+        let derivatives = this_layer_out.mapv(|x| (derivative_f)(&x));
+        let errors = next_layer_ws.t().dot(next_layer_deltas) * derivatives;
+        return errors;
+    }
+
     fn update_params(&mut self, this_layer_deltas: &Array1<f64>, previous_layer_output: &Array1<f64>, learning_rate: f64);
-    fn set_activation(&mut self, _type: activations::ActivationType);
-
-    fn randomize_params(&mut self);
-
+    
+    fn randomize_params(&mut self){}
+    
     fn get_weights(&self) -> &Array2<f64>;
     fn get_format(&self) -> (usize, usize);
+    
+    fn set_activation(&mut self, _type: activations::ActivationType);
+    fn get_activation(&self) -> &activations::Activation;
+}
+
+pub enum LayerType {
+    Dense,
+    Input,
+    Output
 }
 
 pub struct Ann {
@@ -120,15 +133,11 @@ impl Ann {
     }
 
     pub fn train(&mut self, inputs: &Vec<Array1<f64>>, expecteds: &Vec<Array1<f64>>, iterations:usize, learning_rate: f64) -> f64 {
-        println!();
         for _ in 0..iterations {
             for (i, input) in inputs.iter().enumerate() {
                 self.learn(input, &expecteds[i], learning_rate);
             }
-            let loss = self.get_loss_batch(inputs, expecteds);
-            println!("\rLoss: {:?}", loss);
         }
-        println!();
         return self.get_loss_batch(inputs, expecteds);
     }
 }
@@ -157,12 +166,6 @@ impl NetLayer for DenseLayer {
         return output.map(self.activation.f);
     }
 
-    fn get_backpropag_error(&self, this_layer_out: &Array1<f64>, next_layer_deltas: &Array1<f64>, next_layer_ws: &Array2<f64>) -> Array1<f64> {
-        let derivatives = this_layer_out.mapv(|x| (self.activation.d)(&x));
-        let errors = next_layer_ws.t().dot(next_layer_deltas) * derivatives;
-        return errors;
-    }
-
     fn update_params(&mut self, this_layer_deltas: &Array1<f64>, previous_layer_output: &Array1<f64>, learning_rate: f64) {
         for i in 0..self.weights.nrows() {
             let j_l_w = previous_layer_output * this_layer_deltas[i];
@@ -177,6 +180,10 @@ impl NetLayer for DenseLayer {
 
     fn set_activation(&mut self, _type: activations::ActivationType) {
         self.activation = activations::Activation::create(_type);
+    }
+    
+    fn get_activation(&self) -> &activations::Activation {
+        return &self.activation;
     }
 
     fn get_weights(&self) -> &Array2<f64> {

@@ -22,9 +22,10 @@ fn performance_compare(c: &mut Criterion){
         vec![1.0],
     ];
     
+    let mut loss1 = 0.;
     group.bench_function("old",  |b| 
         b.iter(|| 
-            xor_net.train(&input, &expected, 0.1, 100)
+            loss1 = xor_net.train(&input, &expected, 0.1, 100)
         )
     );
 
@@ -57,13 +58,14 @@ fn performance_compare(c: &mut Criterion){
         Array1::from_vec(vec![0.0]),
         Array1::from_vec(vec![1.0]),
     ];
-
+    let mut loss2 = 0.;
     group.bench_function("new", |b| 
         b.iter(|| 
-            ann.train(&input, &expected, 100, 0.1)
+            loss2 = ann.train(&input, &expected, 100, 0.1)
         )
     );
 
+    println!("Loss old: {:?}, Loss new: {:?}", loss1, loss2);
     group.finish();
 }
 criterion_group!(benches, performance_compare);
