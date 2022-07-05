@@ -6,7 +6,7 @@ use ndarray::Array1;
 
 #[test]
 pub fn test_net(){
-    let mut ann = Ann::new();
+    let mut ann = Ann::new(0);
     ann.add_layer(Box::new(DenseLayer::new(2, 3)));
     ann.add_layer(Box::new(DenseLayer::new(3, 2)));
 
@@ -18,7 +18,7 @@ pub fn test_net(){
 
 #[test]
 pub fn creation_time_test(){
-    let mut ann = Ann::new();
+    let mut ann = Ann::new(0);
     //[2, 3, 100, 50, 2, 2]
     ann.add_layer(Box::new(DenseLayer::new(2, 3)));
     ann.add_layer(Box::new(DenseLayer::new(3, 100)));
@@ -32,7 +32,7 @@ pub fn creation_time_test(){
 
 #[test]
 pub fn learn_test(){
-    let mut ann = Ann::new();
+    let mut ann = Ann::new(0);
     //[2, 3, 3, 1]
     ann.add_layer(Box::new(DenseLayer::new(2, 3)));
     ann.add_layer(Box::new(DenseLayer::new(3, 3)));
@@ -45,7 +45,7 @@ pub fn learn_test(){
 
 #[test]
 pub fn train_test(){
-    let mut ann = Ann::new();
+    let mut ann = Ann::new(0);
     //[2, 3, 3, 1]
     ann.add_layer(Box::new(DenseLayer::new(2, 2)));
     ann.add_layer(Box::new(DenseLayer::new(2, 2)));

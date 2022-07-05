@@ -1,4 +1,6 @@
 use ndarray::{Array1};
+use crate::layer::NetLayerSerialize;
+
 use super::activations;
 use super::layer::NetLayer;
 
@@ -6,15 +8,28 @@ pub struct Ann {
     pub layers: Vec<Box<dyn NetLayer>>,
     layers_output: Vec<Array1<f64>>,
     layers_deltas: Vec<Array1<f64>>,
+    pub input_format: usize
 }
 
 impl Ann {
-    pub fn new() -> Ann {
+    pub fn new(input_format: usize) -> Ann {
         return Ann { 
             layers: vec![], 
             layers_output: vec![], 
             layers_deltas: vec![],
+            input_format
         };
+    }
+
+    pub fn push<L: NetLayer + NetLayerSerialize>(&mut self, out_format: usize) -> &mut Box<dyn NetLayer> {
+        let input_format:usize;
+        if self.layers.len() > 0 {
+            input_format = self.layers[self.layers.len() - 1].get_format().1;
+        } else {
+            input_format = self.input_format;
+        }
+        self.layers.push(L::create((input_format, out_format)));
+        return self.layers.last_mut().unwrap();
     }
 
     pub fn set_activations(&mut self, activations: &[activations::ActivationType]) {
@@ -53,7 +68,7 @@ impl Ann {
     }
 
     pub fn randomize(&mut self) {
-        for layer in self.layers.iter_mut().skip(1) {
+        for layer in self.layers.iter_mut() {
             layer.randomize_params();
         }
     }

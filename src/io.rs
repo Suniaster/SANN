@@ -24,9 +24,9 @@ struct NetworkJsonInfo{
 impl NetworkJsonInfo {
     fn create_layer_from_type(layer_type: &String, format: (usize, usize)) -> Box<dyn NetLayer> {
         match layer_type.as_str() {
-            "Dense" => dense::DenseLayer::from_format(format),
-            "Input" => dense::DenseLayer::from_format(format),
-            "Output" => dense::DenseLayer::from_format(format),
+            "Dense" => dense::DenseLayer::create(format),
+            "Input" => dense::DenseLayer::create(format),
+            "Output" => dense::DenseLayer::create(format),
             _ => panic!("Error: Unknown layer type: {}", layer_type),
         }
     }
@@ -52,8 +52,11 @@ impl NetworkJsonInfo {
     }
 
     fn create_net(&self)-> network::Ann{
-        let mut new_net = network::Ann::new();
+        let mut new_net = network::Ann::new(0);
         for i in 0..self.formats.len(){
+            if i == 0 {
+                new_net.input_format = self.formats[i].0;
+            }
             new_net.add_layer(NetworkJsonInfo::create_layer_from_type(&self.types[i], self.formats[i]));
             new_net.layers[i].set_weights(self.weights[i].clone());
             new_net.layers[i].set_biases(self.biases[i].clone());

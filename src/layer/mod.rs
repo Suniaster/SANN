@@ -32,5 +32,5 @@ pub trait NetLayer {
 }
 
 pub trait NetLayerSerialize {
-    fn from_format(format: (usize, usize)) -> Box<dyn NetLayer>;
+    fn create(format: (usize, usize)) -> Box<dyn NetLayer>;
 }

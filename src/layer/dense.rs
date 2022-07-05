@@ -81,7 +81,7 @@ impl NetLayer for DenseLayer {
 }
 
 impl NetLayerSerialize for DenseLayer {
-    fn from_format(format: (usize, usize)) -> Box<dyn NetLayer> {
-        return Box::new(DenseLayer::new(format.1, format.0));
+    fn create(format: (usize, usize)) -> Box<dyn NetLayer> {
+        return Box::new(DenseLayer::new(format.0, format.1));
     }
 }

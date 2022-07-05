@@ -9,7 +9,7 @@ use criterion::{criterion_group, criterion_main, Criterion};
 
 fn performance_compare(c: &mut Criterion){
     let mut group = c.benchmark_group("Training");
-    let mut ann = Ann::new();
+    let mut ann = Ann::new(0);
     //[2, 3, 100, 50, 2, 2]
     ann.add_layer(Box::new(DenseLayer::new(2, 3)));
     ann.add_layer(Box::new(DenseLayer::new(3, 4)));
