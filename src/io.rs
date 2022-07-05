@@ -52,7 +52,7 @@ impl NetworkJsonInfo {
     }
 
     fn create_net(&self)-> network::Ann{
-        let mut new_net = network::Ann::new(0);
+        let mut new_net = network::Ann::new_empty();
         for i in 0..self.formats.len(){
             if i == 0 {
                 new_net.input_format = self.formats[i].0;

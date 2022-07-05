@@ -6,7 +6,7 @@ use ndarray::Array1;
 use criterion::{criterion_group, criterion_main, Criterion};
 
 fn criterion_benchmark_v2(c: &mut Criterion) {
-    let mut ann = Ann::new(0);
+    let mut ann = Ann::new_empty();
     //[2, 3, 100, 50, 2, 2]
     ann.add_layer(Box::new(DenseLayer::new(2, 3)));
     ann.add_layer(Box::new(DenseLayer::new(3, 100)));

@@ -12,6 +12,11 @@ pub struct Ann {
 }
 
 impl Ann {
+
+    pub fn new_empty() -> Ann {
+        return Ann::new(0);
+    }
+
     pub fn new(input_format: usize) -> Ann {
         return Ann { 
             layers: vec![], 
@@ -28,7 +33,7 @@ impl Ann {
         } else {
             input_format = self.input_format;
         }
-        self.layers.push(L::create((input_format, out_format)));
+        self.add_layer(L::create((input_format, out_format)));
         return self.layers.last_mut().unwrap();
     }
 
@@ -39,6 +44,9 @@ impl Ann {
     }
 
     pub fn add_layer(&mut self, layer: Box<dyn NetLayer>) {
+        if self.layers.len() == 0 {
+            self.input_format = layer.get_format().0;
+        }
         self.layers_output.push(Array1::zeros(layer.get_format().1));
         self.layers_deltas.push(Array1::zeros(layer.get_format().1));
         self.layers.push(layer);
