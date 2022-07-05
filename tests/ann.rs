@@ -45,20 +45,17 @@ pub fn learn_test(){
 
 #[test]
 pub fn train_test(){
-    let mut ann = Ann::new_empty();
+    let mut ann = Ann::new(2);
     //[2, 3, 3, 1]
-    ann.add_layer(Box::new(DenseLayer::new(2, 2)));
-    ann.add_layer(Box::new(DenseLayer::new(2, 2)));
-    ann.add_layer(Box::new(DenseLayer::new(2, 2)));
-    ann.add_layer(Box::new(DenseLayer::new(2, 1)));
+    ann.push::<DenseLayer>(2)
+        .set_activation(ActivationType::Linear);
+    ann.push::<DenseLayer>(2)
+        .set_activation(ActivationType::Sigmoid);
+    ann.push::<DenseLayer>(2)
+        .set_activation(ActivationType::Sigmoid);
+    ann.push::<DenseLayer>(1)
+        .set_activation(ActivationType::Linear);
     ann.randomize();
-
-    ann.set_activations(&[
-        ActivationType::Linear,
-        ActivationType::Sigmoid,
-        ActivationType::Sigmoid,
-        ActivationType::Linear,
-    ]);
 
     let input =  vec![
         Array1::from_vec(vec![1.0, 1.0]),
@@ -78,7 +75,7 @@ pub fn train_test(){
     println!("Loss before training {:?}", loss);
 
 
-    let loss = ann.train(&input, &expected, 10_000,  0.1);
+    let loss = ann.train(&input, &expected, 100_000,  0.1);
     println!("Loss after training: {:?}", loss);
 
     // Result after training:

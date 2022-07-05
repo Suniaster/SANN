@@ -1,7 +1,5 @@
 use ndarray::{Array1};
 use crate::layer::NetLayerSerialize;
-
-use super::activations;
 use super::layer::NetLayer;
 
 pub struct Ann {
@@ -35,12 +33,6 @@ impl Ann {
         }
         self.add_layer(L::create((input_format, out_format)));
         return self.layers.last_mut().unwrap();
-    }
-
-    pub fn set_activations(&mut self, activations: &[activations::ActivationType]) {
-        for i in 0..activations.len() {
-            self.layers[i].set_activation(activations[i].clone());
-        }
     }
 
     pub fn add_layer(&mut self, layer: Box<dyn NetLayer>) {

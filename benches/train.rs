@@ -9,19 +9,16 @@ use criterion::{criterion_group, criterion_main, Criterion};
 
 fn performance_compare(c: &mut Criterion){
     let mut group = c.benchmark_group("Training");
-    let mut ann = Ann::new_empty();
+    let mut ann = Ann::new(2);
     //[2, 3, 100, 50, 2, 2]
-    ann.add_layer(Box::new(DenseLayer::new(2, 3)));
-    ann.add_layer(Box::new(DenseLayer::new(3, 4)));
-    ann.add_layer(Box::new(DenseLayer::new(4, 2)));
-    ann.add_layer(Box::new(DenseLayer::new(2, 1)));
-    
-    ann.set_activations(&[
-        ActivationType::Linear,
-        ActivationType::ReLu,
-        ActivationType::Sigmoid,
-        ActivationType::ReLu,
-    ]);
+    ann.push::<DenseLayer>(3)
+        .set_activation(ActivationType::Linear);
+    ann.push::<DenseLayer>(4)
+        .set_activation(ActivationType::ReLu);
+    ann.push::<DenseLayer>(2)
+        .set_activation(ActivationType::Sigmoid);
+    ann.push::<DenseLayer>(1)
+        .set_activation(ActivationType::ReLu);
 
     let input =  vec![
         Array1::from_vec(vec![1.0, 1.0]),
@@ -39,7 +36,7 @@ fn performance_compare(c: &mut Criterion){
     let mut loss2 = 0.;
     group.bench_function("new", |b| 
         b.iter(|| 
-            loss2 = ann.train(&input, &expected, 100, 0.1)
+            loss2 = ann.train(&input, &expected, 1000, 0.1)
         )
     );
 
