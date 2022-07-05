@@ -53,10 +53,22 @@ Save and load network params:
 ```rust
 let net1 = # ... initialize network
 
-let out_file = String::from("original.json");
-io::save_net(&net1, &out_file);
+let mut ann = Ann::new(2);
 
-let net2 = io::load_net(&out_file);
-io::save_net(&net2, &String::from("loaded.json"));
+ann.push::<DenseLayer>(3)
+    .set_activation(ActivationType::Sigmoid);
+ann.push::<DenseLayer>(2)
+    .set_activation(ActivationType::Sigmoid);
+ann.push::<DenseLayer>(3)
+    .set_activation(ActivationType::ReLu);
+ann.push::<DenseLayer>(1)
+    .set_activation(ActivationType::Linear);
+
+ann.randomize();
+
+io::save_net(&ann, &String::from("test.json"));
+
+let net2 = io::load_net(&String::from("test.json"));
+    
 # ... loaded.json content is the same as original.json
 ```
