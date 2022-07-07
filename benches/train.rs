@@ -35,14 +35,11 @@ fn performance_compare(c: &mut Criterion){
         Array1::from_vec(vec![0.0]),
         Array1::from_vec(vec![1.0]),
     ];
-    let mut loss2 = 0.;
     group.bench_function("new", |b| 
         b.iter(|| 
-            loss2 = ann.train(&input, &expected, 1000, 0.1)
+            ann.train(&input, &expected, 1000, 0.1)
         )
     );
-
-    println!("LOSS: {:?}", loss2);
     group.finish();
 }
 criterion_group!(benches, performance_compare);
