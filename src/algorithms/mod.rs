@@ -58,7 +58,7 @@ pub trait NetworkBackPropagation {
     
     fn get_loss_batch(&self, inputs: &Vec<Array1<f64>>, targets: &Vec<Array1<f64>>) -> f64;
 
-    fn learn(&mut self, input: &Array1<f64>, target: &Array1<f64>, learning_rate: f64)
+    fn backpropagate(&mut self, input: &Array1<f64>, target: &Array1<f64>, learning_rate: f64)
         where Self: Sized
     {
         let mut bp_data = BackPropagationData::new(self);
@@ -81,7 +81,7 @@ pub trait NetworkBackPropagation {
     {
         for _ in 0..iterations {
             for (i, input) in inputs.iter().enumerate() {
-                self.learn(input, &targets[i], learning_rate);
+                self.backpropagate(input, &targets[i], learning_rate);
             }
         }
         return self.get_loss_batch(inputs, targets);

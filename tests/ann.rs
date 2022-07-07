@@ -42,7 +42,7 @@ pub fn learn_test(){
     let input = Array1::from_vec(vec![1.0, 1.0]);
     let target = Array1::from_vec(vec![1.0]);
 
-    ann.learn(&input, &target, 0.1);
+    ann.backpropagate(&input, &target, 0.1);
 }
 
 #[test]
