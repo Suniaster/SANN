@@ -34,8 +34,10 @@ fn performance_compare(c: &mut Criterion) {
         Array1::from_vec(vec![0.0]),
         Array1::from_vec(vec![1.0]),
     ];
-    group.bench_function("new", |b| {
-        b.iter(|| ann.train(&input, &expected, 1000, 0.1))
+
+    let iters = 100_000;
+    group.bench_function(format!("new Iterations: {}", iters), |b| {
+        b.iter(|| ann.train(&input, &expected, iters, 0.1))
     });
     group.finish();
 }
