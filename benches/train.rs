@@ -4,6 +4,8 @@ use sann::layer::dense::DenseLayer;
 use sann::activations::ActivationType;
 use ndarray::Array1;
 
+use sann::algorithms::NetworkBackPropagation;
+
 use criterion::{criterion_group, criterion_main, Criterion};
 
 

@@ -4,6 +4,8 @@ use sann::layer::dense::DenseLayer;
 use sann::activations::ActivationType;
 use ndarray::Array1;
 
+use sann::algorithms::NetworkBackPropagation;
+
 #[test]
 pub fn test_net(){
     let mut ann = Ann::new_empty();
