@@ -1,4 +1,4 @@
-use ndarray::Array1;
+use ndarray::{Array1, Array2};
 
 use crate::{layer::NetLayer, network::Ann};
 
@@ -115,5 +115,19 @@ impl NetworkBackPropagation for Ann {
             loss += self.get_error(&inputs[i], &expecteds[i]);
         }
         return loss / inputs.len() as f64;
+    }
+}
+
+impl dyn NetLayer {
+    fn get_backpropag_error(
+        &self,
+        this_layer_out: &Array1<f64>,
+        next_layer_deltas: &Array1<f64>,
+        next_layer_ws: &Array2<f64>,
+    ) -> Array1<f64> {
+        let derivative_f = self.get_activation().d;
+        let derivatives = this_layer_out.mapv(|x| (derivative_f)(&x));
+        let errors = next_layer_ws.t().dot(next_layer_deltas) * derivatives;
+        return errors;
     }
 }

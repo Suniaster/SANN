@@ -50,8 +50,6 @@ pub fn train_test() {
     let mut ann = Ann::new(2);
     //[2, 3, 3, 1]
     ann.push::<DenseLayer>(2)
-        .set_activation(ActivationType::Linear);
-    ann.push::<DenseLayer>(2)
         .set_activation(ActivationType::Sigmoid);
     ann.push::<DenseLayer>(2)
         .set_activation(ActivationType::Sigmoid);
