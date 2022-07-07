@@ -2,51 +2,83 @@ use ndarray::{Array1};
 
 use crate::{layer::NetLayer, network::Ann};
 
-pub trait NetworkBackPropagation {
-    fn last_layer_errors(&self, expected: &Array1<f64>) -> Array1<f64>;
+struct BackPropagationData {
+    layers_output: Vec<Array1<f64>>,
+    layers_deltas: Vec<Array1<f64>>,
+}
 
-    fn get_layers(&mut self) -> &mut Vec<Box<dyn NetLayer>>;
-    fn get_layers_deltas(&mut self) -> &mut Vec<Array1<f64>>;
-    fn get_layers_output(&self) -> &Vec<Array1<f64>>;
-    
-    fn activate_saving_output(&mut self, input: &Array1<f64>);
-    fn get_loss_batch(&self, inputs: &Vec<Array1<f64>>, targets: &Vec<Array1<f64>>) -> f64;
+impl BackPropagationData {
+    fn new<T: NetworkBackPropagation>( net: &mut T) -> BackPropagationData {
+        return BackPropagationData {
+            layers_output: net.get_layers()
+                .iter()
+                .map(|layer| 
+                    Array1::zeros(layer.get_format().1)
+                )
+                .collect(),
+            layers_deltas: net.get_layers()
+                .iter()
+                .map(|layer| 
+                    Array1::zeros(layer.get_format().1)
+                )
+                .collect(),
+        };
+    }
 
-    fn update_deltas(&mut self, expected: &Array1<f64>) {
-        let mut deltas = self.last_layer_errors(expected);
-        let layers_len = self.get_layers_deltas().len();
-        
-        self.get_layers_deltas()[layers_len - 1] = deltas.clone();
-
-        for i in (0..layers_len).rev().skip(1) {
-            let next_layer_deltas = self.get_layers_deltas()[i + 1].clone();
-            let next_layer_ws = self.get_layers()[i+1].get_weights().clone();
-            let this_layer_out = self.get_layers_output()[i].clone();
-
-            deltas = self.get_layers()[i].get_backpropag_error(
-                &this_layer_out, 
-                &next_layer_deltas, 
-                &next_layer_ws
-            );
-            self.get_layers_deltas()[i] = deltas.clone();
+    fn activate_net(&mut self, net: &mut dyn NetworkBackPropagation, input: &Array1<f64>){
+        self.layers_output[0] = net.get_layers()[0].activate(input);
+        for i in 1..net.get_layers().len() {
+            self.layers_output[i] = net.get_layers()[i].activate(&self.layers_output[i-1]);
         }
     }
 
-    fn learn(&mut self, input: &Array1<f64>, target: &Array1<f64>, learning_rate: f64){
-        self.activate_saving_output(input);
-        self.update_deltas(target);
+    fn update_deltas(&mut self, net: &mut dyn NetworkBackPropagation, expected: &Array1<f64>) {
+        let l_len = net.get_layers().len();
+        self.layers_deltas[l_len - 1] = net.last_layer_errors(&self.layers_output[l_len-1], expected);
+
+        for i in (0..l_len-1).rev() {
+            let next_layer_deltas = &self.layers_deltas[i + 1];
+            let next_layer_ws = net.get_layers()[i + 1].get_weights();
+            let this_layer_out = &self.layers_output[i];
+
+            self.layers_deltas[i] = net.get_layers()[i].get_backpropag_error(
+                this_layer_out, 
+                next_layer_deltas, 
+                next_layer_ws
+            );
+        }   
+    }
+}
+
+pub trait NetworkBackPropagation {
+    fn last_layer_errors(&self, output: &Array1<f64>, expected: &Array1<f64>) -> Array1<f64>;
+
+    fn get_layers_mut(&mut self) -> &mut Vec<Box<dyn NetLayer>>;
+    fn get_layers(&self) -> &Vec<Box<dyn NetLayer>>;
+    
+    fn get_loss_batch(&self, inputs: &Vec<Array1<f64>>, targets: &Vec<Array1<f64>>) -> f64;
+
+    fn learn(&mut self, input: &Array1<f64>, target: &Array1<f64>, learning_rate: f64)
+        where Self: Sized
+    {
+        let mut bp_data = BackPropagationData::new(self);
+        bp_data.activate_net(self, input);
+        bp_data.update_deltas(self, target);
+
         for i in 1..self.get_layers().len() {
-            let prev_layer_out = self.get_layers_output()[i - 1].clone();
-            let deltas = self.get_layers_deltas()[i].clone();
-            self.get_layers()[i].update_params(
-                &deltas, 
-                &prev_layer_out, 
+            let prev_layer_out = &bp_data.layers_output[i - 1];
+            let this_layer_deltas = &bp_data.layers_deltas[i];
+            self.get_layers_mut()[i].update_params(
+                this_layer_deltas, 
+                prev_layer_out, 
                 learning_rate
             );
         }
     }
 
-    fn train(&mut self, inputs: &Vec<Array1<f64>>, targets: &Vec<Array1<f64>>, iterations: usize, learning_rate: f64) -> f64 {
+    fn train(&mut self, inputs: &Vec<Array1<f64>>, targets: &Vec<Array1<f64>>, iterations: usize, learning_rate: f64) -> f64 
+        where Self: Sized
+    {
         for _ in 0..iterations {
             for (i, input) in inputs.iter().enumerate() {
                 self.learn(input, &targets[i], learning_rate);
@@ -57,29 +89,17 @@ pub trait NetworkBackPropagation {
 }
 
 impl NetworkBackPropagation for Ann {
-    fn last_layer_errors(&self, expected: &Array1<f64>) -> Array1<f64> {
+    fn last_layer_errors(&self, output: &Array1<f64>, expected: &Array1<f64>) -> Array1<f64> {
         // Considering the last function to have linear activation.
-        return &self.layers_output[self.layers_output.len()-1] - expected;
+        return output - expected;
     }
 
-    fn get_layers(&mut self) -> &mut Vec<Box<dyn NetLayer>> {
+    fn get_layers(&self) -> &Vec<Box<dyn NetLayer>> {
+        return &self.layers;
+    }
+
+    fn get_layers_mut(&mut self) -> &mut Vec<Box<dyn NetLayer>> {
         return &mut self.layers;
-    }
-
-    fn get_layers_deltas(&mut self) -> &mut Vec<Array1<f64>> {
-        return &mut self.layers_deltas;
-    }
-
-    fn get_layers_output(&self) -> &Vec<Array1<f64>> {
-        return &self.layers_output;
-    }
-    
-    fn activate_saving_output(&mut self, input: &Array1<f64>){
-        let output = input.clone();
-        self.layers_output[0] = self.layers[0].activate(&output);
-        for (i, layer) in self.layers.iter().enumerate().skip(1) {
-            self.layers_output[i] = layer.activate(&self.layers_output[i-1]);
-        }
     }
 
     fn get_loss_batch(&self, inputs: &Vec<Array1<f64>>, expecteds: &Vec<Array1<f64>>) -> f64 {

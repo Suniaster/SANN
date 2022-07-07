@@ -4,8 +4,6 @@ use super::layer::NetLayer;
 
 pub struct Ann {
     pub layers: Vec<Box<dyn NetLayer>>,
-    pub layers_output: Vec<Array1<f64>>,
-    pub layers_deltas: Vec<Array1<f64>>,
     pub input_format: usize
 }
 
@@ -17,9 +15,7 @@ impl Ann {
 
     pub fn new(input_format: usize) -> Ann {
         return Ann { 
-            layers: vec![], 
-            layers_output: vec![], 
-            layers_deltas: vec![],
+            layers: vec![],
             input_format
         };
     }
@@ -39,8 +35,6 @@ impl Ann {
         if self.layers.len() == 0 {
             self.input_format = layer.get_format().0;
         }
-        self.layers_output.push(Array1::zeros(layer.get_format().1));
-        self.layers_deltas.push(Array1::zeros(layer.get_format().1));
         self.layers.push(layer);
     }
 
