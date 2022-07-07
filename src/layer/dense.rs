@@ -1,5 +1,5 @@
-use ndarray::{Array1, Array2};
 use super::{activations, NetLayerSerialize};
+use ndarray::{Array1, Array2};
 
 use super::NetLayer;
 use rand;
@@ -29,7 +29,12 @@ impl NetLayer for DenseLayer {
         return output.map(self.activation.f);
     }
 
-    fn update_params(&mut self, this_layer_deltas: &Array1<f64>, previous_layer_output: &Array1<f64>, learning_rate: f64) {
+    fn update_params(
+        &mut self,
+        this_layer_deltas: &Array1<f64>,
+        previous_layer_output: &Array1<f64>,
+        learning_rate: f64,
+    ) {
         for i in 0..self.weights.nrows() {
             let j_l_w = previous_layer_output * this_layer_deltas[i];
 
@@ -44,7 +49,7 @@ impl NetLayer for DenseLayer {
     fn set_activation(&mut self, _type: activations::ActivationType) {
         self.activation = activations::Activation::create(_type);
     }
-    
+
     fn get_activation(&self) -> &activations::Activation {
         return &self.activation;
     }

@@ -1,27 +1,29 @@
-use ndarray::{Array1};
-use crate::layer::NetLayerSerialize;
 use super::layer::NetLayer;
+use crate::layer::NetLayerSerialize;
+use ndarray::Array1;
 
 pub struct Ann {
     pub layers: Vec<Box<dyn NetLayer>>,
-    pub input_format: usize
+    pub input_format: usize,
 }
 
 impl Ann {
-
     pub fn new_empty() -> Ann {
         return Ann::new(0);
     }
 
     pub fn new(input_format: usize) -> Ann {
-        return Ann { 
+        return Ann {
             layers: vec![],
-            input_format
+            input_format,
         };
     }
 
-    pub fn push<L: NetLayer + NetLayerSerialize>(&mut self, out_format: usize) -> &mut Box<dyn NetLayer> {
-        let input_format:usize;
+    pub fn push<L: NetLayer + NetLayerSerialize>(
+        &mut self,
+        out_format: usize,
+    ) -> &mut Box<dyn NetLayer> {
+        let input_format: usize;
         if self.layers.len() > 0 {
             input_format = self.layers[self.layers.len() - 1].get_format().1;
         } else {

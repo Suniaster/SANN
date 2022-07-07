@@ -1,4 +1,4 @@
-use ndarray::{Array1};
+use ndarray::Array1;
 
 use crate::{layer::NetLayer, network::Ann};
 
@@ -8,45 +8,44 @@ struct BackPropagationData {
 }
 
 impl BackPropagationData {
-    fn new<T: NetworkBackPropagation>( net: &mut T) -> BackPropagationData {
+    fn new<T: NetworkBackPropagation>(net: &mut T) -> BackPropagationData {
         return BackPropagationData {
-            layers_output: net.get_layers()
+            layers_output: net
+                .get_layers()
                 .iter()
-                .map(|layer| 
-                    Array1::zeros(layer.get_format().1)
-                )
+                .map(|layer| Array1::zeros(layer.get_format().1))
                 .collect(),
-            layers_deltas: net.get_layers()
+            layers_deltas: net
+                .get_layers()
                 .iter()
-                .map(|layer| 
-                    Array1::zeros(layer.get_format().1)
-                )
+                .map(|layer| Array1::zeros(layer.get_format().1))
                 .collect(),
         };
     }
 
-    fn activate_net(&mut self, net: &mut dyn NetworkBackPropagation, input: &Array1<f64>){
+    fn activate_net(&mut self, net: &mut dyn NetworkBackPropagation, input: &Array1<f64>) {
         self.layers_output[0] = net.get_layers()[0].activate(input);
         for i in 1..net.get_layers().len() {
-            self.layers_output[i] = net.get_layers()[i].activate(&self.layers_output[i-1]);
+            self.layers_output[i] = net.get_layers()[i].activate(&self.layers_output[i - 1]);
         }
     }
 
     fn update_deltas(&mut self, net: &mut dyn NetworkBackPropagation, expected: &Array1<f64>) {
         let l_len = net.get_layers().len();
-        self.layers_deltas[l_len - 1] = net.last_layer_errors(&self.layers_output[l_len-1], expected);
+        self.layers_deltas[l_len - 1] =
+            net.last_layer_errors(&self.layers_output[l_len - 1], expected);
 
-        for i in (0..l_len-1).rev() {
+        for i in (0..l_len - 1).rev() {
             let next_layer_deltas = &self.layers_deltas[i + 1];
             let next_layer_ws = net.get_layers()[i + 1].get_weights();
             let this_layer_out = &self.layers_output[i];
 
             self.layers_deltas[i] = net.get_layers()[i].get_backpropag_error(
-                this_layer_out, 
-                next_layer_deltas, 
-                next_layer_ws
+                this_layer_out,
+                next_layer_deltas,
+                next_layer_ws,
             );
-        }   
+        }
     }
 }
 
@@ -55,11 +54,12 @@ pub trait NetworkBackPropagation {
 
     fn get_layers_mut(&mut self) -> &mut Vec<Box<dyn NetLayer>>;
     fn get_layers(&self) -> &Vec<Box<dyn NetLayer>>;
-    
+
     fn get_loss_batch(&self, inputs: &Vec<Array1<f64>>, targets: &Vec<Array1<f64>>) -> f64;
 
     fn backpropagate(&mut self, input: &Array1<f64>, target: &Array1<f64>, learning_rate: f64)
-        where Self: Sized
+    where
+        Self: Sized,
     {
         let mut bp_data = BackPropagationData::new(self);
         bp_data.activate_net(self, input);
@@ -69,15 +69,22 @@ pub trait NetworkBackPropagation {
             let prev_layer_out = &bp_data.layers_output[i - 1];
             let this_layer_deltas = &bp_data.layers_deltas[i];
             self.get_layers_mut()[i].update_params(
-                this_layer_deltas, 
-                prev_layer_out, 
-                learning_rate
+                this_layer_deltas,
+                prev_layer_out,
+                learning_rate,
             );
         }
     }
 
-    fn train(&mut self, inputs: &Vec<Array1<f64>>, targets: &Vec<Array1<f64>>, iterations: usize, learning_rate: f64) -> f64 
-        where Self: Sized
+    fn train(
+        &mut self,
+        inputs: &Vec<Array1<f64>>,
+        targets: &Vec<Array1<f64>>,
+        iterations: usize,
+        learning_rate: f64,
+    ) -> f64
+    where
+        Self: Sized,
     {
         for _ in 0..iterations {
             for (i, input) in inputs.iter().enumerate() {

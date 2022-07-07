@@ -1,5 +1,5 @@
-use sann::network::Ann;
 use sann::layer::dense::DenseLayer;
+use sann::network::Ann;
 
 use ndarray::Array1;
 

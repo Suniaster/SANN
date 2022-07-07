@@ -1,13 +1,13 @@
-use sann::network::Ann;
 use sann::layer::dense::DenseLayer;
+use sann::network::Ann;
 
-use sann::activations::ActivationType;
 use ndarray::Array1;
+use sann::activations::ActivationType;
 
 use sann::algorithms::NetworkBackPropagation;
 
 #[test]
-pub fn test_net(){
+pub fn test_net() {
     let mut ann = Ann::new_empty();
     ann.add_layer(Box::new(DenseLayer::new(2, 3)));
     ann.add_layer(Box::new(DenseLayer::new(3, 2)));
@@ -19,7 +19,7 @@ pub fn test_net(){
 }
 
 #[test]
-pub fn creation_time_test(){
+pub fn creation_time_test() {
     let mut ann = Ann::new_empty();
     //[2, 3, 100, 50, 2, 2]
     ann.add_layer(Box::new(DenseLayer::new(2, 3)));
@@ -33,7 +33,7 @@ pub fn creation_time_test(){
 }
 
 #[test]
-pub fn learn_test(){
+pub fn learn_test() {
     let mut ann = Ann::new_empty();
     //[2, 3, 3, 1]
     ann.add_layer(Box::new(DenseLayer::new(2, 3)));
@@ -46,7 +46,7 @@ pub fn learn_test(){
 }
 
 #[test]
-pub fn train_test(){
+pub fn train_test() {
     let mut ann = Ann::new(2);
     //[2, 3, 3, 1]
     ann.push::<DenseLayer>(2)
@@ -59,7 +59,7 @@ pub fn train_test(){
         .set_activation(ActivationType::Linear);
     ann.randomize();
 
-    let input =  vec![
+    let input = vec![
         Array1::from_vec(vec![1.0, 1.0]),
         Array1::from_vec(vec![1.0, 0.0]),
         Array1::from_vec(vec![0.0, 1.0]),
@@ -76,8 +76,7 @@ pub fn train_test(){
     let loss = ann.get_loss_batch(&input, &expected);
     println!("Loss before training {:?}", loss);
 
-
-    let loss = ann.train(&input, &expected, 100_000,  0.1);
+    let loss = ann.train(&input, &expected, 100_000, 0.1);
     println!("Loss after training: {:?}", loss);
 
     // Result after training:

@@ -1,12 +1,12 @@
 use sann::activations::ActivationType;
-use sann::network::Ann;
 use sann::layer::dense::DenseLayer;
+use sann::network::Ann;
 
-use sann::io;
 use ndarray::Array1;
+use sann::io;
 
 #[test]
-pub fn test_saving_network(){
+pub fn test_saving_network() {
     let mut ann = Ann::new(2);
 
     ann.push::<DenseLayer>(3)
@@ -23,7 +23,7 @@ pub fn test_saving_network(){
     io::save_net(&ann, &String::from("test.json"));
 
     let net2 = io::load_net(&String::from("test.json"));
-    
+
     let input = Array1::from_vec(vec![1.0, 1.0]);
 
     assert_eq!(ann.activate(&input), net2.activate(&input));
