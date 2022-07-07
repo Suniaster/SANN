@@ -20,7 +20,7 @@ pub trait NetworkBackPropagation {
 
         for i in (0..layers_len).rev().skip(1) {
             let next_layer_deltas = self.get_layers_deltas()[i + 1].clone();
-            let next_layer_ws = self.get_layers()[i].get_weights().clone();
+            let next_layer_ws = self.get_layers()[i+1].get_weights().clone();
             let this_layer_out = self.get_layers_output()[i].clone();
 
             deltas = self.get_layers()[i].get_backpropag_error(
