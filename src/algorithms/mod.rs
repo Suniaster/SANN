@@ -43,7 +43,7 @@ impl BackPropagationData {
             self.layers_deltas[i] = net.get_layers()[i].get_backpropag_error(
                 this_layer_out,
                 next_layer_deltas,
-                next_layer_ws,
+                &next_layer_ws,
             );
         }
     }

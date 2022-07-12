@@ -50,12 +50,12 @@ impl NetLayer for DenseLayer {
         self.activation = activations::Activation::create(_type);
     }
 
-    fn get_activation(&self) -> &activations::Activation {
-        return &self.activation;
+    fn get_activation(&self) -> activations::Activation {
+        return activations::Activation::create(self.activation.t.clone());
     }
 
-    fn get_weights(&self) -> &Array2<f64> {
-        return &self.weights;
+    fn get_weights(&self) -> Array2<f64> {
+        return self.weights.clone();
     }
 
     fn set_weights(&mut self, weights: Array2<f64>) {
@@ -72,8 +72,8 @@ impl NetLayer for DenseLayer {
         self.biases.mapv_inplace(|_| rng.gen::<f64>() * 2. - 1.);
     }
 
-    fn get_biases(&self) -> &Array1<f64> {
-        return &self.biases;
+    fn get_biases(&self) -> Array1<f64> {
+        return self.biases.clone();
     }
 
     fn set_biases(&mut self, biases: Array1<f64>) {
